@@ -393,14 +393,23 @@
     }
   }
 
-  // Known third-party aggregators / resellers. When source_url points at one of
-  // these, we label it "Aggregator" so the user knows it's not the hotel's own
-  // site (the hotel-website link is the safer click for actual booking).
-  const AGGREGATOR_DOMAINS = new Set([
+  // Known third-party aggregators / resellers. We match the registrable domain
+  // OR any subdomain of it (e.g. `deals.vio.com` should match `vio.com`). When
+  // source_url points at one of these, we label it as a rate source rather
+  // than the hotel's own site, since aggregators sometimes have backend
+  // failures the actual hotel doesn't (e.g. vio.com's MySQL outages).
+  const AGGREGATOR_DOMAINS = [
     'vio.com', 'agoda.com', 'booking.com', 'expedia.com', 'hotels.com',
     'priceline.com', 'kayak.com', 'trivago.com', 'tripadvisor.com',
-    'orbitz.com', 'travelocity.com',
-  ]);
+    'orbitz.com', 'travelocity.com', 'getyourguide.com', 'tiket.com',
+    'hotwire.com', 'wotif.com', 'ebookers.com', 'lastminute.com',
+    'snaptravel.com', 'hotelplanner.com', 'amoma.com', 'reservationcounts.com',
+  ];
+  function isAggregatorHost(host) {
+    if (!host) return false;
+    const h = host.toLowerCase();
+    return AGGREGATOR_DOMAINS.some(d => h === d || h.endsWith('.' + d));
+  }
 
   function bookLinks(n) {
     n = n || {};
@@ -425,7 +434,7 @@
         sourceHost = new URL(sourceUrl).hostname.replace(/^www\./, '') || null;
       } catch (_) { sourceHost = null; }
     }
-    const sourceIsAggregator = sourceHost && AGGREGATOR_DOMAINS.has(sourceHost);
+    const sourceIsAggregator = isAggregatorHost(sourceHost);
     if (sourceHost && !sourceIsAggregator) {
       // The rate source IS the hotel's own website — that's the gold standard.
       hotelDirectUrl = sourceUrl;
