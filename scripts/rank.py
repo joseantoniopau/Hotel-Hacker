@@ -121,47 +121,74 @@ def _compute_points_value(
     hotel: dict,
     balances: Optional[dict],
     valuations: dict,
-) -> float:
-    """Return USD points value if user has the program + enough balance, else 0.
+) -> Tuple[float, Optional[str]]:
+    """Return (USD points value, gating_reason).
 
-    The pure cpp-math lives in value.value_points; this wrapper enforces the
-    ranking-layer gate: "only credit points value when the user actually has
-    enough points to book". Without a balances dict (CLI run without
-    --balances) we still credit the points value — the user explicitly opted
-    out of the balance check.
+    `gating_reason` is `None` when value was applied, otherwise a short
+    human-readable string explaining why value was forced to 0 (e.g.
+    "user has 0 Hyatt points"). The pure cpp-math lives in
+    value.value_points; this wrapper enforces the ranking-layer STRICT
+    BALANCE GATE:
+
+      Points value applies ONLY when:
+        (a) hotel.points_eligible.program is set, AND
+        (b) balances.programs[program] >= points_per_night * nights.
+
+      v1 ranker does NOT credit transferable currencies (Chase UR / Amex MR
+      etc.) toward this threshold — transfer math (1:1 / 2:1 / 1:2) is
+      surfaced in the UI as a soft signal only. Document choice: keeps the
+      ranker honest until we encode the transfer matrix.
+
+    Without a balances dict (CLI run without --balances) the gate is
+    SKIPPED — the operator explicitly opted out of balance-aware ranking
+    so we trust the hotel record.
     """
     pe = hotel.get("points_eligible")
     if not pe:
-        return 0.0
+        return 0.0, None  # no points value to apply; not a gating event.
     program = _get(pe, "program")
     if not program:
-        return 0.0
+        return 0.0, None
     points_per_night = _as_float(_get(pe, "points_per_night"), default=0.0)
     nights = _as_float(hotel.get("nights"), default=0.0)
     if points_per_night <= 0 or nights <= 0:
-        return 0.0
+        return 0.0, None
 
-    # If a balances dict was supplied, enforce the threshold; otherwise skip
-    # the check (graceful: user did not opt into balance-aware ranking).
+    # Enforce the balance threshold when balances were supplied.
     if balances and isinstance(balances, dict):
         programs = balances.get("programs") or {}
         balance = _as_float(programs.get(program), default=0.0)
-        if balance < points_per_night * nights:
-            return 0.0
+        required = points_per_night * nights
+        if balance < required:
+            short = (program or "").replace("Live Limitless", "ALL")
+            return (
+                0.0,
+                f"user has {int(balance):,} {short} points; "
+                f"award costs {int(required):,}",
+            )
 
     return float(value_points(
         program=program,
         points_per_night=int(points_per_night),
         nights=int(nights),
         valuations=valuations or {},
-    ))
+    )), None
 
 
 def _compute_free_night_value(
     hotel: dict,
     loyalty_programs: dict,
-) -> float:
-    """Return USD value of free-night benefit when the rule + threshold trigger."""
+    balances: Optional[dict] = None,
+) -> Tuple[float, Optional[str]]:
+    """Return (USD free-night value, gating_reason).
+
+    STRICT BALANCE GATE — free-night value applies ONLY when:
+      (a) brand maps to a loyalty program WITH a free_night_rule, AND
+      (b) the user has a positive direct balance in that program, AND
+      (c) nights >= the rule's threshold (handled in value.value_free_night).
+
+    Without a balances dict, gate (b) is skipped (operator opted out).
+    """
     fne = hotel.get("free_night_eligible")
     program = None
     if fne:
@@ -172,14 +199,34 @@ def _compute_free_night_value(
     nights = _as_float(hotel.get("nights"), default=0.0)
     nightly = _as_float(hotel.get("nightly_rate_usd"), default=0.0)
     if nights <= 0 or nightly <= 0 or not program:
-        return 0.0
+        return 0.0, None
 
-    return float(value_free_night(
+    # Only programs with a non-null free_night_rule can ever produce free-night
+    # value. Skip the balance gate entirely otherwise — emitting a gating reason
+    # for a program that has no rule (e.g. "Andaz", "World of Hyatt") would be
+    # noise, not signal.
+    prog_entry = (loyalty_programs or {}).get(program) or {}
+    has_rule = bool(isinstance(prog_entry, dict) and prog_entry.get("free_night_rule"))
+    if not has_rule:
+        return 0.0, None
+
+    # Gate (b): require a positive direct program balance.
+    if balances and isinstance(balances, dict):
+        programs = balances.get("programs") or {}
+        balance = _as_float(programs.get(program), default=0.0)
+        if balance <= 0:
+            return 0.0, f"user has 0 {program} points (free-night needs award)"
+
+    val = float(value_free_night(
         program=program,
         nightly_rate_usd=nightly,
         nights=int(nights),
         loyalty_programs=loyalty_programs or {},
     ))
+    if val <= 0:
+        # value_free_night returned 0 — rule didn't fire (e.g. nights < threshold).
+        return 0.0, None
+    return val, None
 
 
 def _compute_fhr(
@@ -188,26 +235,31 @@ def _compute_fhr(
     fhr_perk_values: dict,
     perk_rules: dict,
     balances: Optional[dict],
-) -> Tuple[float, float]:
-    """Return (fhr_value_usd, fhr_haircut_usd).
+) -> Tuple[float, float, Optional[str]]:
+    """Return (fhr_value_usd, fhr_haircut_usd, gating_reason).
 
-    fhr_inputs are user-pasted entries that opt this property into FHR scoring.
-    No automatic FHR scoring without an explicit input — FHR availability
-    rotates and cannot be inferred from brand alone.
+    STRICT GATE — FHR value applies ONLY when:
+      (a) the hotel is FHR-eligible (either hotel.fhr_eligible == True or
+          brand appears in data/fhr_eligible_brands.json — checked indirectly
+          by requiring an explicit FHR paste in `fhr_inputs`, which the
+          operator only supplies for eligible properties), AND
+      (b) the user has at least one FHR-qualifying card in balances.cards
+          (Amex Platinum / Centurion / Business Platinum per
+          data/perk_rules.json#fhr_requires_card), AND
+      (c) there is an FHR paste matching this hotel_id.
+
+    Without (b) the FHR value is zero AND a gating_reason is recorded.
+
+    Without (c) the value is zero with NO gating_reason — the operator simply
+    didn't ask us to score this property as FHR, which is not a gating event.
     """
     if not fhr_inputs:
-        return 0.0, 0.0
+        return 0.0, 0.0, None
     token = hotel.get("hotel_id")
     if not token:
-        return 0.0, 0.0
+        return 0.0, 0.0, None
 
-    # Require an FHR-eligible card in the user's wallet (if balances provided).
-    if balances and isinstance(balances, dict):
-        cards = balances.get("cards") or []
-        required = (perk_rules or {}).get("fhr_requires_card") or []
-        if required and not any(c in cards for c in required):
-            return 0.0, 0.0
-
+    # Locate the matching FHR paste for this hotel.
     entry: Optional[dict] = None
     for fi in fhr_inputs:
         if not isinstance(fi, dict):
@@ -216,7 +268,23 @@ def _compute_fhr(
             entry = fi
             break
     if not entry:
-        return 0.0, 0.0
+        return 0.0, 0.0, None  # no paste for this hotel — not a gating event.
+
+    # Gate (b): require an FHR-eligible card.
+    required = (perk_rules or {}).get("fhr_requires_card") or []
+    if balances and isinstance(balances, dict):
+        cards = balances.get("cards") or []
+        if required and not any(c in cards for c in required):
+            return (
+                0.0,
+                0.0,
+                f"no FHR-qualifying card in wallet (need one of: "
+                f"{', '.join(required)})",
+            )
+    elif required:
+        # No balances supplied AND required-card list is non-empty: trust the
+        # CLI operator who opted out of balance checks.
+        pass
 
     perks_in = entry.get("perks") or {}
     # Translate shorthand perk flags ("fb_credit", "breakfast", ...) into the
@@ -243,8 +311,8 @@ def _compute_fhr(
 
     # value_fhr returns (gross_usd, haircut_usd).
     if isinstance(result, (tuple, list)) and len(result) >= 2:
-        return float(result[0]), float(result[1])
-    return float(result or 0.0), 0.0
+        return float(result[0]), float(result[1]), None
+    return float(result or 0.0), 0.0, None
 
 
 # Map shorthand perk flags ("fb_credit", "breakfast", "late_checkout", ...) to
@@ -366,10 +434,10 @@ def _format_explanation(
     elif arb_usd < 0:
         parts.append(f"minus ${abs(arb_usd):,.0f} currency edge")
     via = {
-        "fhr": "via Amex FHR",
-        "points-portal": "via points portal",
-        "direct": "via direct booking",
-        "ota": "via OTA",
+        "fhr": "via Amex Fine Hotels & Resorts",
+        "points-portal": "via a loyalty-points redemption",
+        "direct": "by booking direct on the hotel's website",
+        "ota": "via a booking site",
     }.get(channel, "")
     head = " ".join(parts)
     return f"{head} = ${effective:,.0f} {via}".strip()
@@ -390,19 +458,19 @@ def _pick_channel(
     if fhr_net > 0 and fhr_net >= points_total and fhr_net > 0:
         return (
             "fhr",
-            "FHR perks deliver the single biggest saving for this stay.",
+            "Amex Fine Hotels & Resorts perks deliver the single biggest saving for this stay.",
         )
     if points_total > 0 and points_total >= fhr_net:
         return (
             "points-portal",
-            "Award redemption beats every cash discount for this stay.",
+            "A loyalty-points redemption beats every cash discount for this stay.",
         )
     if refundable is True:
         return (
             "direct",
-            "Direct refundable rate wins on price and option value.",
+            "The direct refundable rate wins on price and on cancellation flexibility.",
         )
-    return ("ota", "OTA cash rate is the best available channel.")
+    return ("ota", "The booking-site cash rate is the best available option here.")
 
 
 def _build_badges(
@@ -472,16 +540,32 @@ def _score_one(
     perk_rules: dict,
     fhr_inputs: Optional[List[dict]],
 ) -> Dict[str, Any]:
-    """Compute the full ranked record for one normalized hotel."""
+    """Compute the full ranked record for one normalized hotel.
+
+    Gating reasons (why a component was zeroed out despite the hotel being
+    eligible on paper) are collected into breakdown.gating so the UI can show
+    "we DIDN'T apply Hyatt points because you have 0 Hyatt points" instead of
+    silently dropping value.
+    """
     raw_total = _raw_total_usd(hotel)
 
-    points_value = _compute_points_value(hotel, balances, valuations)
-    free_night_value = _compute_free_night_value(hotel, loyalty_programs)
-    fhr_value, fhr_haircut = _compute_fhr(
+    points_value, gate_points = _compute_points_value(hotel, balances, valuations)
+    free_night_value, gate_free = _compute_free_night_value(
+        hotel, loyalty_programs, balances
+    )
+    fhr_value, fhr_haircut, gate_fhr = _compute_fhr(
         hotel, fhr_inputs, fhr_perk_values, perk_rules, balances
     )
     flex_penalty = _compute_flex_penalty(hotel, raw_total)
     arb_usd = _compute_currency_arb(hotel)
+
+    gating: Dict[str, str] = {}
+    if gate_points:
+        gating["points"] = gate_points
+    if gate_free:
+        gating["free_night"] = gate_free
+    if gate_fhr:
+        gating["fhr"] = gate_fhr
 
     fhr_net = fhr_value - fhr_haircut
     effective = (
@@ -535,6 +619,10 @@ def _score_one(
             "fhr_haircut_usd": round(fhr_haircut, 2),
             "flexibility_penalty_usd": round(flex_penalty, 2),
             "currency_arb_usd": round(arb_usd, 2),
+            # Why-was-this-zero log: maps {"points"|"free_night"|"fhr"} -> str.
+            # Absent when nothing was gated. Lets the UI display "user has 0
+            # Hyatt points" instead of silently dropping the value.
+            "gating": gating,
         },
         "recommended_channel": channel,
         "channel_reason": reason,

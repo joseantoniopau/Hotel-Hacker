@@ -31,9 +31,9 @@
   </div>
   <p class="note">Only the FREE SerpApi account needed. No paid subscription required &mdash; unlike flight_hacker's $99/year Seats.aero.</p>
 
-  <div class="ticker" aria-label="Sample savings example">
-    <span class="ticker-num" data-target="847">$0</span>
-    <span class="ticker-label">saved on a sample 4-night Tokyo stay (illustrative)</span>
+  <div class="ticker" aria-label="What gets layered into the ranking">
+    <span class="ticker-num">raw &minus; points &minus; free-night &minus; Amex perks &plusmn; currency</span>
+    <span class="ticker-label">the exact line items the ranker applies to every row</span>
   </div>
 </section>
 
@@ -42,50 +42,33 @@
   <p class="lede">When you search Google for a hotel, you see one nightly price. That's it. Hotel Hacker adds everything Google hides.</p>
   <ul class="features">
     <li><strong>&#128176; True total cost.</strong> Rolls resort fees, parking, and wifi into the math so the ranking can't lie. The number you see is the number you'll actually pay.</li>
-    <li><strong>&#127919; Points &amp; free-night smarts.</strong> Knows Marriott 5&rarr;4, IHG 4th-night-free, Hilton 5th-free, and Hyatt's category sweet spots. Tells you when paying with points beats paying cash.</li>
-    <li><strong>&#128142; Amex FHR perks valued in dollars.</strong> $100 F&amp;B credit, daily breakfast for two, 4pm checkout, room upgrade &mdash; added up against the rate so you can see if FHR actually wins.</li>
-    <li><strong>&#128177; Currency arbitrage flags.</strong> Same property quoted in JPY vs USD can swing 2&ndash;8%. We notice. You don't have to.</li>
-    <li><strong>&#128681; Risk badges on every row.</strong> LEGAL / GRAY / TOS-RISK so you always know what you're booking and what you're risking.</li>
+    <li><strong>&#127919; Loyalty-point and free-night smarts.</strong> Knows Marriott's fifth-night-free award, IHG's fourth-night-free, Hilton's fifth-free, and Hyatt's category structure. Tells you when paying with points beats paying cash &mdash; but only when you actually have the balance to book it.</li>
+    <li><strong>&#128142; Amex Fine Hotels &amp; Resorts perks valued in dollars.</strong> $100 food-and-beverage credit, daily breakfast for two, 4 PM late checkout, room upgrade when available &mdash; each given a real dollar value and added up against the rate so you can see if the Amex channel actually beats booking direct.</li>
+    <li><strong>&#128177; Currency-arbitrage flags.</strong> The same property quoted in Japanese yen versus US dollars can swing 2&ndash;8% just based on the folio currency. We notice. You don't have to.</li>
+    <li><strong>&#128681; Risk labels on every row.</strong> Each result is tagged <em>Verified rate</em>, <em>Unverified</em> (cache stale or rate not confirmed), or <em>Booking risk</em> (an aggressive tactic with terms-of-service trade-offs we explain but never auto-execute) &mdash; so you always know what you're booking and what the trade-offs are.</li>
     <li><strong>&#128202; Every number explains itself.</strong> Each row shows the raw price &rarr; effective price math in one sentence. No black boxes.</li>
     <li><strong>&#128274; Local only.</strong> Your balances and searches never leave your computer. No accounts, no tracking, no cookies.</li>
   </ul>
 </section>
 
 <section id="vs-google" class="block fade-in">
-  <h2 data-num="02 / VS GOOGLE">Why this is better than Google</h2>
-  <p class="lede">Google Hotels is fine for a quick nightly rate. It is blind to almost every way real travelers actually save money &mdash; points, free-night mechanics, Amex perks, and currency mismatches. Hotel Hacker is the layer Google doesn't see.</p>
+  <h2 data-num="02 / HOW IT BEATS A PLAIN SEARCH">Why this beats a plain Google search</h2>
+  <p class="lede">Google Hotels is fine for a quick nightly rate. It is blind to almost every way real travelers actually save money &mdash; loyalty points, free-night mechanics, Amex Fine Hotels &amp; Resorts perks, and currency mismatches. Hotel Hacker is the layer Google doesn't see.</p>
 
-  <h3>Real-world examples</h3>
-
-  <div class="example">
-    <h4>Example 1 &mdash; 4 nights, Park Hyatt Tokyo <span class="ill">(illustrative)</span></h4>
-    <table class="cmp">
-      <tr><td>What Google shows</td><td>$580/night &times; 4 = $2,320 cash</td></tr>
-      <tr><td>What Hotel Hacker finds</td><td><strong>30,000 Hyatt pts/night &times; 4 = 120,000 pts (~$2,040 at 1.7&cent;/pt)</strong></td></tr>
-      <tr><td>Bonus</td><td>You earn a category-bump on the redemption, and your cash stays in your account.</td></tr>
-      <tr><td>You save</td><td class="save"><strong>$280 &mdash; and you keep the cash.</strong></td></tr>
-    </table>
-  </div>
+  <h3>What the tool actually computes &mdash; on every row</h3>
 
   <div class="example">
-    <h4>Example 2 &mdash; 5 nights, La Mamounia Marrakech (FHR-eligible) <span class="ill">(illustrative)</span></h4>
+    <h4>The ranking formula, in plain English</h4>
     <table class="cmp">
-      <tr><td>Sticker rate</td><td>$880/night &times; 5 = $4,400</td></tr>
-      <tr><td>Via Amex FHR</td><td>$830/night flexible &times; 5 = $4,150</td></tr>
-      <tr><td>FHR perks valued</td><td><strong>&minus; $100 F&amp;B credit &minus; $300 daily breakfast &minus; $50 upgrade = $3,700 effective</strong></td></tr>
-      <tr><td>Caveat</td><td>FHR perks only count when you book through Amex Travel with an eligible card.</td></tr>
-      <tr><td>You save</td><td class="save"><strong>$700 &mdash; on the exact same room.</strong></td></tr>
+      <tr><td>Start with</td><td>The raw nightly rate, multiplied by nights, plus the property's resort fees, parking fees, and wifi fees (so the ranking can't be fooled by a low nightly headline).</td></tr>
+      <tr><td>Subtract</td><td><strong>Loyalty-point value</strong> &mdash; only when you have the points balance to actually book the award (we read your <code>data/user_balances.json</code>). Per-program cents-per-point come from <code>data/points_valuations.json</code>, which you can edit.</td></tr>
+      <tr><td>Subtract</td><td><strong>Free-night value</strong> &mdash; when the brand is Marriott (fifth-night-free), IHG (fourth-night-free), or Hilton (fifth-free), <em>and</em> you have a positive balance with that program, <em>and</em> your stay is long enough to trigger the perk.</td></tr>
+      <tr><td>Subtract</td><td><strong>Amex Fine Hotels &amp; Resorts perks</strong> in dollars &mdash; only when you paste a Fine Hotels &amp; Resorts rate for the property and you've ticked at least one qualifying Amex card in your balances tab.</td></tr>
+      <tr><td>Add back</td><td><strong>Currency haircut</strong> &mdash; if the property bills in a non-USD folio, the Amex credit converts at a rate that typically clips 3&ndash;6%, so the credit's effective value is reduced.</td></tr>
+      <tr><td>Add</td><td><strong>Flexibility penalty</strong> &mdash; a 5% tax on non-refundable rates because they carry real downside risk if your plans change.</td></tr>
+      <tr><td>Result</td><td><strong>Effective cost</strong> &mdash; the number you'd actually pay out of pocket, after every dollar-valued adjustment.</td></tr>
     </table>
-  </div>
-
-  <div class="example">
-    <h4>Example 3 &mdash; 3 nights, NYC midtown Marriott <span class="ill">(illustrative)</span></h4>
-    <table class="cmp">
-      <tr><td>What Google shows</td><td>$420/night &times; 3 + $50 resort fee/night = $1,410</td></tr>
-      <tr><td>Marriott points</td><td><strong>50K pts/night &times; 3 = 150K pts (~$1,200 at 0.8&cent;/pt) &mdash; resort fees waived on award stays</strong></td></tr>
-      <tr><td>Bonus</td><td>You still earn elite-night credit toward status.</td></tr>
-      <tr><td>You save</td><td class="save"><strong>$210 plus elite-night credit.</strong></td></tr>
-    </table>
+    <p class="cmp-foot">Every line is shown in the breakdown grid when you click a row. Nothing is hidden. If a discount can't be honestly applied (no balance, no eligible card, brand not enrolled in Fine Hotels &amp; Resorts), the line is zero.</p>
   </div>
 
   <h3>What Hotel Hacker does vs. Google Hotels</h3>
@@ -97,15 +80,15 @@
       <tbody>
         <tr><td>Show resort fees, parking, and wifi in the total</td><td class="n">Hidden until checkout</td><td class="y">Rolled into ranking</td></tr>
         <tr><td>Show points-redemption value in dollars</td><td class="n">No</td><td class="y">Per-program valuation, side-by-side</td></tr>
-        <tr><td>Show FHR perks priced in dollars</td><td class="n">N/A</td><td class="y">$100 credit + breakfast + upgrade = math</td></tr>
-        <tr><td>Catch currency arbitrage (JPY vs USD folio)</td><td class="n">No</td><td class="y">Flagged on every row</td></tr>
-        <tr><td>Show free-night mechanics (5&rarr;4, 4th-free)</td><td class="n">No</td><td class="y">Built-in rules per program</td></tr>
+        <tr><td>Show Amex Fine Hotels &amp; Resorts perks priced in dollars</td><td class="n">N/A</td><td class="y">$100 credit + breakfast + upgrade, valued</td></tr>
+        <tr><td>Catch currency arbitrage (yen vs dollar folio)</td><td class="n">No</td><td class="y">Flagged on every row</td></tr>
+        <tr><td>Show free-night mechanics (fifth-free, fourth-free)</td><td class="n">No</td><td class="y">Built-in rules per program</td></tr>
         <tr><td>Show refundability prominently</td><td class="p">Buried</td><td class="y">Top-level badge</td></tr>
         <tr><td>Explain every number on the row</td><td class="n">No</td><td class="y">One-sentence breakdown per row</td></tr>
         <tr><td>Work without a Google account</td><td class="n">Account tracked</td><td class="y">No account needed</td></tr>
-        <tr><td>Work for Amex Fine Hotels &amp; Resorts comparisons</td><td class="n">No</td><td class="y">Paste FHR rate &rarr; ranked head-to-head</td></tr>
+        <tr><td>Compare against Amex Fine Hotels &amp; Resorts</td><td class="n">No</td><td class="y">Paste the rate &rarr; ranked head-to-head</td></tr>
         <tr><td>Draft a polite upgrade-request email</td><td class="n">No</td><td class="y">Template you copy/paste yourself</td></tr>
-        <tr><td>Flag TOS-risky tactics with clear warnings</td><td class="n">Hidden from you</td><td class="y">Red TOS-RISK badge + full disclosure</td></tr>
+        <tr><td>Flag aggressive booking tactics with clear warnings</td><td class="n">Hidden from you</td><td class="y">Booking-risk badge + full disclosure</td></tr>
         <tr><td>Privacy &mdash; runs locally, no tracking</td><td class="n">Tracked</td><td class="y">On your computer only</td></tr>
       </tbody>
     </table>
@@ -164,7 +147,7 @@
       <h4>Tell it your points balances</h4>
       <p>This is what makes the tool know which redemptions you can actually book. Open this file with TextEdit (any plain text editor works):</p>
       <pre><code>~/Desktop/hotel-hacker/data/user_balances.json</code></pre>
-      <p>You'll see a list of programs with zeros next to them. Change the zeros to your actual point balances (log into your card and hotel accounts to check). Save the file. If you don't have any points yet, just leave the zeros &mdash; the tool still works for cash and FHR comparisons.</p>
+      <p>You'll see a list of programs with zeros next to them. Change the zeros to your actual point balances (log into your card and hotel accounts to check). Save the file. If you don't have any points yet, just leave the zeros &mdash; the tool still ranks cash rates honestly and will simply skip the points line items.</p>
     </li>
 
     <li>
@@ -204,20 +187,21 @@
     </li>
     <li>
       <h4>Look at the EFFECTIVE column.</h4>
-      <p>That's the true out-the-door cost &mdash; whether you pay cash, use points, or book through FHR. Sorted cheapest first. Hover any row to see the one-sentence math.</p>
+      <p>That's the true out-the-door cost &mdash; whether you'd pay cash, use loyalty points, or book through Amex Fine Hotels &amp; Resorts. Sorted cheapest first. Hover any row to see the one-sentence math.</p>
     </li>
     <li>
-      <h4>Click "Book" on the row you want.</h4>
-      <p>You'll be taken directly to the hotel's official site (or Amex Travel for FHR). You book there, with your own card. The tool never touches your payment info.</p>
+      <h4>Click a row to see the math, then a Book link to reserve.</h4>
+      <p>Each row has a BOOK column with up to three working links: the hotel's own website, the rate's source (Google Hotels deep link), and a Google Maps lookup. Click any one and complete the booking with your own card on the official site. The tool never touches your payment info.</p>
     </li>
   </ol>
 
   <h3>Things you can also do</h3>
   <ul class="features">
-    <li><strong>Paste an FHR rate manually.</strong> If you're on amextravel.com and see a Fine Hotels &amp; Resorts rate for your stay, paste it into the FHR box on any row. The tool re-ranks instantly with the FHR perks valued in dollars.</li>
-    <li><strong>Draft a polite upgrade-request email.</strong> Click "Draft email" on any row. The tool writes a courteous pre-arrival message &mdash; you copy it into your own email and send it. (We never send anything for you.)</li>
-    <li><strong>Update your balances anytime.</strong> Re-open <code>data/user_balances.json</code>, change the numbers, save. The tool picks it up on the next search.</li>
-    <li><strong>Watch the SerpApi quota counter.</strong> The small number in the corner shows how many free searches you have left this month. It refreshes lazily &mdash; no surprises.</li>
+    <li><strong>Paste an Amex Fine Hotels &amp; Resorts rate manually.</strong> If you're on amextravel.com and see a Fine Hotels &amp; Resorts rate for your stay, paste it into the panel on the search tab. The tool re-ranks instantly with the perks (food &amp; beverage credit, breakfast, late checkout, room upgrade) valued in dollars.</li>
+    <li><strong>Click a pin on the map to see Street View.</strong> Every result is plotted on a brutalist amber-on-midnight map at the top of the results. Click any pin to slide out a panel showing Street View of the front door, the full breakdown, and direct booking links.</li>
+    <li><strong>Draft a polite upgrade-request email.</strong> A courteous pre-arrival message templated to your status and arrival date. The tool writes it &mdash; you copy it into your own email and send it. We never send anything for you.</li>
+    <li><strong>Update your balances anytime.</strong> Open the BALANCES tab, edit the numbers and ticked cards, save. The next search uses the new values immediately.</li>
+    <li><strong>Watch the search-budget counter.</strong> The number in the corner shows how many free hotel searches you have left this month. It refreshes lazily &mdash; no surprises.</li>
   </ul>
 
   <h3>Tomorrow and after</h3>
@@ -234,13 +218,13 @@
   <h2 data-num="05 / PRIVACY &amp; SAFETY">Privacy and safety</h2>
   <ul class="features">
     <li><strong>&#9989; Runs on your own computer.</strong> Nothing is uploaded anywhere. The tool just makes API calls to SerpApi (like your browser does when you visit a site).</li>
-    <li><strong>&#9989; We never see your Amex card.</strong> FHR perks are valued from a rate YOU paste in from amextravel.com. The tool has no card-on-file, no Amex login, nothing.</li>
+    <li><strong>&#9989; We never see your Amex card.</strong> Amex Fine Hotels &amp; Resorts perks are valued from a rate you paste in yourself from amextravel.com. The tool has no card on file, no Amex login, nothing.</li>
     <li><strong>&#9989; No tracking, no ads, no cookies.</strong> Unlike Google, your searches are never tied to your identity.</li>
-    <li><strong>&#9989; Bookings happen on the hotel's or Amex Travel's site.</strong> Hotel Hacker just points you there &mdash; it never handles your payment info.</li>
-    <li><strong>&#9989; We can draft a polite pre-arrival upgrade-request email, but we never send it.</strong> You copy/paste it into your own email and send it yourself. Always your call.</li>
+    <li><strong>&#9989; Bookings happen on the hotel's own website or on Amex Travel.</strong> Hotel Hacker just points you there &mdash; it never handles your payment info.</li>
+    <li><strong>&#9989; We can draft a polite pre-arrival upgrade-request email, but we never send it.</strong> You copy and paste it into your own email and send it yourself. Always your call.</li>
   </ul>
   <div class="tos-note">
-    <strong>&#9888;&#65039; TOS-RISK tactics:</strong> A handful of tactics (VPN/locale-shopping to get different regional prices) are shown with a red <code>TOS-RISK</code> badge and full warnings. We never auto-execute them. You decide what's right for you.
+    <strong>&#9888;&#65039; Aggressive booking tactics:</strong> A handful of tactics (using a VPN to see prices from another country, &ldquo;throwaway&rdquo; rate stacking, etc.) come with terms-of-service trade-offs that hotels and Amex may not honor. We tag those rows with a red <em>Booking risk</em> badge and explain the exact trade-off. We never auto-execute them. You decide what's right for you.
   </div>
 </section>
 
@@ -259,8 +243,8 @@
     <dt>I changed my balances but the tool doesn't use them</dt>
     <dd>Make sure you saved the file (<code>Cmd + S</code> in TextEdit) and that you edited the right file: <code>~/Desktop/hotel-hacker/data/user_balances.json</code>. Refresh the web page. If TextEdit added a <code>.txt</code> extension by accident, rename the file back to <code>user_balances.json</code>.</dd>
 
-    <dt>I can't figure out where to find the FHR rate to paste in</dt>
-    <dd>On <a href="https://www.amextravel.com/" target="_blank" rel="noopener">amextravel.com</a>, search for your hotel and dates. Look for the "Fine Hotels &amp; Resorts" filter or badge. The rate you want is the "best flexible" nightly rate &mdash; the one that doesn't say "non-refundable". Paste that USD number into the FHR box on the matching row in Hotel Hacker.</dd>
+    <dt>I can't figure out where to find the Amex Fine Hotels &amp; Resorts rate to paste in</dt>
+    <dd>On <a href="https://www.amextravel.com/" target="_blank" rel="noopener">amextravel.com</a>, search for your hotel and dates. Look for the &ldquo;Fine Hotels &amp; Resorts&rdquo; filter or badge. The rate you want is the &ldquo;best flexible&rdquo; nightly rate &mdash; the one that doesn't say &ldquo;non-refundable&rdquo;. Paste that US-dollar number into the Amex panel on the SEARCH tab in Hotel Hacker, pick the same property from the dropdown, and click Re-rank.</dd>
 
     <dt>I'm on Windows</dt>
     <dd>Install WSL (Windows Subsystem for Linux) using <a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank" rel="noopener">Microsoft's instructions</a>. Once WSL is set up, open the Ubuntu/WSL terminal and follow the Mac steps from there &mdash; they all work identically inside WSL.</dd>
@@ -273,7 +257,7 @@
 <section class="block fade-in">
   <h2 data-num="07 / WHAT THIS DOES NOT DO">What this does NOT do</h2>
   <ul class="features">
-    <li>&#10060; <strong>Does not book the hotel for you.</strong> It shows you the cheapest path and links you to the official site (or Amex Travel for FHR). You book there.</li>
+    <li>&#10060; <strong>Does not book the hotel for you.</strong> It shows you the cheapest path and links you to the official site (or Amex Travel for Fine Hotels &amp; Resorts bookings). You complete the booking there.</li>
     <li>&#10060; <strong>Does not see your credit card.</strong> You only paste in a rate number from amextravel.com. No card details, no logins, nothing leaves your machine.</li>
     <li>&#10060; <strong>Does not track you.</strong> Everything is local. No accounts, no cookies, no analytics, no phone-home.</li>
     <li>&#10060; <strong>Does not help with flights.</strong> For flights, use the sibling project: <a href="https://github.com/joseantoniopau/flight_hacker" target="_blank" rel="noopener">flight_hacker</a> (and its companion site <a href="https://joseantoniopau.github.io/flight_hacker/" target="_blank" rel="noopener">joseantoniopau.github.io/flight_hacker</a>).</li>

@@ -4,6 +4,17 @@ value.py — pure valuation primitives for the effective-cost formula.
 No I/O, no globals, no side effects. Every function is unit-testable in
 isolation and returns 0.0 (never None, never raises) on degenerate input —
 the ranking layer is allowed to assume these never blow up.
+
+GATING CONTRACT
+---------------
+These functions TRUST THEIR INPUTS. They do not check whether the caller's
+user actually holds the points, has the qualifying card, or is otherwise
+eligible to realize the value being computed. Every balance / card / FHR /
+free-night gate lives one layer up in scripts/rank.py
+(_compute_points_value, _compute_free_night_value, _compute_fhr). The
+guarantee here is purely arithmetic: "given these inputs, this is the USD
+value of the redemption". The caller is responsible for deciding whether
+to apply that value at all.
 """
 
 from __future__ import annotations
@@ -21,6 +32,10 @@ def value_points(
 
     Conservative fallback of 0.5 cpp when a program is unknown — better to
     under-credit points value than to oversell a stay.
+
+    NOTE: trusts inputs. Does NOT check whether the user has enough points
+    to actually book this award — that gate lives in
+    rank._compute_points_value.
     """
     try:
         ppn = float(points_per_night)
@@ -50,6 +65,11 @@ def value_free_night(
 
     Worth one nightly rate in USD when the rule fires; otherwise 0.0. We model
     only the canonical patterns we encode in data/loyalty_programs.json.
+
+    NOTE: trusts inputs. Does NOT check whether the user has a positive
+    program balance — free-night benefits stack onto award redemptions, so
+    the ranker (rank._compute_free_night_value) gates this on a non-zero
+    direct program balance.
     """
     try:
         rate = float(nightly_rate_usd)
@@ -87,6 +107,11 @@ def value_fhr(
     applies the folio-currency-specific haircut from
     `fhr_perk_values['_meta']['regional_haircut_pct']` (because an FHR USD
     credit converts at folio FX which typically clips 3-6% vs market mid).
+
+    NOTE: trusts inputs. Does NOT check whether the user holds an
+    FHR-qualifying Amex card (Platinum / Centurion / Business Platinum) or
+    whether the property is FHR-eligible — both gates live in
+    rank._compute_fhr.
     """
     if not isinstance(perk_selection, dict) or not isinstance(fhr_perk_values, dict):
         return (0.0, 0.0)

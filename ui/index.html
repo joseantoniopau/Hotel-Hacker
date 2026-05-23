@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>hotel-hacker &mdash; find the true cheapest stay</title>
-  <meta name="description" content="A small, honest tool that finds the actually-cheapest hotel for any trip — after points, free-night perks, FHR credits, and currency haircuts. Brutalist, layperson-friendly, runs locally.">
+  <meta name="description" content="A small, honest tool that finds the actually-cheapest hotel for any trip — after loyalty points, free-night perks, Amex Fine Hotels & Resorts credits, and currency haircuts. Brutalist, layperson-friendly, runs locally.">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -61,15 +61,15 @@
            ============================================================ -->
       <section class="view active" id="view-search">
 
-        <!-- Animated ticker -->
-        <div class="ticker fade-in" aria-label="Savings ticker">
-          <span class="ticker-label">Saved across all users this month</span>
-          <span class="ticker-num" id="ticker">$0</span>
-          <span class="ticker-foot">illustrative</span>
+        <!-- Live quota readout — replaces the illustrative savings ticker. -->
+        <div class="ticker fade-in" aria-label="Search budget readout">
+          <span class="ticker-label">Free hotel searches left this month</span>
+          <span class="ticker-num" id="ticker">—</span>
+          <span class="ticker-foot">live · resets on the 1st</span>
         </div>
 
         <h2><span>01 / SEARCH</span></h2>
-        <p class="muted">Tell us where and when. We'll find the hotels Google Hotels knows about, then re-rank them by what they'll <em>actually</em> cost after points, FHR credits, free-night perks, and currency clipping.</p>
+        <p class="muted">Tell us where and when. We'll find the hotels Google Hotels knows about, then re-rank them by what they'll <em>actually</em> cost after loyalty points, free-night perks, Amex Fine Hotels &amp; Resorts credits, and currency haircuts.</p>
 
         <form id="search-form" class="card fade-in" autocomplete="off">
           <div class="grid">
@@ -112,13 +112,13 @@
           </div>
         </form>
 
-        <!-- FHR optional panel -->
+        <!-- Optional Amex Fine Hotels & Resorts paste-in panel -->
         <details class="collapse fade-in" id="fhr-panel">
           <summary>
-            <span><span class="tick"></span>ADD AMEX FHR DETAILS &nbsp;<span class="brass">(optional)</span></span>
+            <span><span class="tick"></span>ADD AMEX FINE HOTELS &amp; RESORTS DETAILS &nbsp;<span class="brass">(optional)</span></span>
           </summary>
           <div class="body">
-            <p class="muted micro">Paste the property's Fine Hotels &amp; Resorts rate here. Required only if you want us to score the FHR channel for a specific property after a search.</p>
+            <p class="muted micro">Paste a property's Fine Hotels &amp; Resorts rate from amextravel.com. Only needed if you want us to score that booking channel for a specific property after a search.</p>
             <div class="grid cols-2">
               <div class="field">
                 <label for="fhr-property">PROPERTY</label>
@@ -169,9 +169,20 @@
           <span id="top-pick-body">No results yet &mdash; run a search from the SEARCH tab.</span>
         </div>
 
+        <!-- MAP PANEL — Google Maps with brutalist amber styling.
+             Markers map 1:1 to result rows; click a pin → opens detail panel. -->
+        <div class="map-panel fade-in" id="map-panel" hidden>
+          <div class="map-toolbar">
+            <span class="map-toolbar__title">▍ MAP</span>
+            <span class="map-toolbar__hint" id="map-hint">— click a pin for street view &amp; details</span>
+            <span class="map-toolbar__count" id="map-count">0 pins</span>
+          </div>
+          <div class="map-canvas" id="map-canvas"></div>
+        </div>
+
         <div class="row-flex between mt-3">
           <span class="micro muted" id="results-meta">&mdash;</span>
-          <button class="btn ghost" id="btn-rerank">RE-RANK WITH FHR</button>
+          <button class="btn ghost" id="btn-rerank">RE-RANK WITH AMEX DETAILS</button>
         </div>
 
         <div class="table-wrap mt-3 fade-in">
@@ -186,11 +197,12 @@
                 <th class="num">EFFECTIVE $</th>
                 <th>CHANNEL</th>
                 <th>BADGES</th>
+                <th>BOOK</th>
                 <th>NOTES</th>
               </tr>
             </thead>
             <tbody id="results-body">
-              <tr><td colspan="9" class="muted" style="text-align:center; padding: 32px;">No results yet.</td></tr>
+              <tr><td colspan="10" class="muted" style="text-align:center; padding: 32px;">No results yet.</td></tr>
             </tbody>
           </table>
         </div>
@@ -199,24 +211,60 @@
       </section>
 
       <!-- ============================================================
-           VIEW: BALANCES
+           VIEW: BALANCES — brutalist editorial, mirrors flight_hacker's
+           Card Currencies / Loyalty Programs / Elite Cards trio.
            ============================================================ -->
       <section class="view" id="view-balances">
         <h2><span>03 / BALANCES</span></h2>
-        <p class="muted">Your points and miles stay on your computer. Edit anything &mdash; save when you're done.</p>
+        <p class="muted">Your points, miles, and cards stay on your computer &mdash; never sent anywhere. Edit anything; press <strong>SAVE BALANCES</strong> when done. These numbers gate which discounts the ranker is allowed to apply.</p>
 
-        <form id="bal-form" class="card fade-in">
-          <h3>TRANSFERABLE CURRENCIES</h3>
-          <div class="grid cols-2" id="bal-currencies">
-            <!-- filled by JS -->
+        <form id="bal-form" class="fade-in">
+
+          <!-- ============================================================
+               ▍ TRANSFER CURRENCIES — Amex MR, Chase UR, Citi TY, Cap1, Bilt
+               ============================================================ -->
+          <h3>▍ TRANSFER CURRENCIES</h3>
+          <p class="micro muted">Transferable bank points (1:1 partners shown). Used as a soft signal &mdash; v1 ranker only credits direct program balances.</p>
+          <div class="table-wrap mt-3">
+            <table class="brutal" id="bal-currencies-table">
+              <thead>
+                <tr>
+                  <th>PROGRAM</th>
+                  <th class="num">BALANCE</th>
+                  <th>TRANSFERS TO</th>
+                </tr>
+              </thead>
+              <tbody id="bal-currencies-body">
+                <!-- filled by JS -->
+              </tbody>
+            </table>
           </div>
 
-          <h3>HOTEL PROGRAMS</h3>
-          <div class="grid cols-2" id="bal-programs">
-            <!-- filled by JS -->
+          <!-- ============================================================
+               ▍ HOTEL LOYALTY PROGRAMS — per-program direct balance
+               ============================================================ -->
+          <h3>▍ HOTEL LOYALTY PROGRAMS</h3>
+          <p class="micro muted">Direct hotel program balances. The ranker applies points value <em>only</em> when this number covers <code>points_per_night &times; nights</code>.</p>
+          <div class="table-wrap mt-3">
+            <table class="brutal" id="bal-programs-table">
+              <thead>
+                <tr>
+                  <th>PROGRAM</th>
+                  <th class="num">BALANCE</th>
+                  <th>FREE-NIGHT RULE</th>
+                </tr>
+              </thead>
+              <tbody id="bal-programs-body">
+                <!-- filled by JS -->
+              </tbody>
+            </table>
           </div>
 
-          <h3>CARDS IN WALLET</h3>
+          <!-- ============================================================
+               ▍ AMEX CARDS — gates Fine Hotels & Resorts credit math
+               ============================================================ -->
+          <h3>▍ AMEX CARDS YOU HOLD</h3>
+          <p class="micro muted">Tick every card you currently carry. Amex Fine Hotels &amp; Resorts perks are only counted in the ranking when at least one qualifying card is in your wallet.</p>
           <div class="checks" id="bal-cards">
             <!-- filled by JS -->
           </div>
@@ -236,7 +284,7 @@
 
         <div class="about-grid">
           <div>
-            <p>hotel-hacker is a small, honest tool that finds the actually-cheapest hotel for any trip you give it &mdash; not just the lowest sticker price, but the cheapest after everything that quietly changes the math: points redemptions, free-night perks, FHR credits, refundability, and currency haircuts.</p>
+            <p>hotel-hacker is a small, honest tool that finds the actually-cheapest hotel for any trip you give it &mdash; not just the lowest sticker price, but the cheapest after everything that quietly changes the math: loyalty-points redemptions, free-night perks (Marriott fifth-night-free, IHG fourth-night-free, Hilton fifth-free), Amex Fine Hotels &amp; Resorts credits, refundability, and currency haircuts.</p>
             <p>It runs locally on your computer. There is no account, no tracking, no upsell. It uses Google Hotels (via SerpApi's free tier) for the listings, applies a transparent ranking formula, and explains every dollar of the result in one plain-English sentence.</p>
 
             <h3>HOW IT WORKS</h3>
@@ -251,11 +299,11 @@
               </li>
               <li class="step">
                 <h4>We re-rank by effective cost</h4>
-                <p>Raw price minus points value, minus free-night value, minus FHR credits, plus currency haircuts and flexibility penalty.</p>
+                <p>Raw price minus loyalty-point value, minus free-night value, minus Amex Fine Hotels &amp; Resorts credit value, plus currency haircuts on non-USD folios, plus a small penalty for non-refundable rates.</p>
               </li>
               <li class="step">
                 <h4>You see one explanation per row</h4>
-                <p>"$840 raw &minus; $100 FHR credit + $6 currency haircut = $746 net via Amex FHR." Click any row for the full math.</p>
+                <p>Each row shows raw price, effective price, and a one-sentence reason citing the exact line items applied. Click any row to expand the full math grid.</p>
               </li>
             </ol>
 
@@ -277,6 +325,38 @@
 
     </main>
   </div>
+
+  <!-- ============================================================
+       MAP DETAIL PANEL — slides in from the right when a pin is clicked
+       ============================================================ -->
+  <div class="detail-panel-backdrop" id="detail-panel-backdrop" hidden></div>
+  <aside class="detail-panel" id="detail-panel" hidden aria-hidden="true">
+    <div class="detail-panel__head">
+      <div>
+        <div class="detail-panel__name" id="dp-name">&mdash;</div>
+        <div class="detail-panel__sub" id="dp-sub">&mdash;</div>
+      </div>
+      <button class="detail-panel__close" id="dp-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="detail-panel__sv" id="dp-streetview">
+      <div class="detail-panel__sv-fallback">Loading street view&hellip;</div>
+    </div>
+    <div class="detail-panel__stats">
+      <div class="dp-stat"><span class="k">RAW</span><span class="v" id="dp-raw">&mdash;</span></div>
+      <div class="dp-stat"><span class="k">EFFECTIVE</span><span class="v accent" id="dp-eff">&mdash;</span></div>
+      <div class="dp-stat"><span class="k">NIGHTS</span><span class="v" id="dp-nights">&mdash;</span></div>
+      <div class="dp-stat"><span class="k">RATING</span><span class="v" id="dp-rating">&mdash;</span></div>
+    </div>
+    <div class="detail-panel__explanation" id="dp-explanation">&mdash;</div>
+    <div class="detail-panel__breakdown" id="dp-breakdown"></div>
+    <div class="detail-panel__badges" id="dp-badges"></div>
+    <div class="detail-panel__addr" id="dp-addr">&mdash;</div>
+    <div class="detail-panel__actions">
+      <a class="btn primary" id="dp-book" href="#" target="_blank" rel="noopener">BOOK ON SOURCE</a>
+      <a class="btn ghost" id="dp-maps" href="#" target="_blank" rel="noopener">OPEN IN MAPS</a>
+      <button class="btn ghost" id="dp-upgrade">DRAFT UPGRADE EMAIL</button>
+    </div>
+  </aside>
 
   <!-- ============================================================
        TOAST + MODAL

@@ -13,6 +13,7 @@ Run:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -46,7 +47,7 @@ for p in (str(REPO_ROOT), str(SCRIPTS_DIR)):
 
 # common — always available (Agent C deliverable)
 try:
-    from common import log_event, load_data, account_load  # type: ignore
+    from common import log_event, load_data, account_load, load_env  # type: ignore
     _HAS_COMMON = True
 except Exception as _e:
     _HAS_COMMON = False
@@ -73,6 +74,41 @@ except Exception as _e:
             "plan_searches_left": 250,
             "last_checked": None,
         }
+
+    def load_env() -> dict:  # type: ignore
+        """Minimal .env parser fallback (no deps)."""
+        env_path = REPO_ROOT / ".env"
+        out: dict = {}
+        if not env_path.exists():
+            return out
+        try:
+            for raw in env_path.read_text(encoding="utf-8").splitlines():
+                line = raw.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, _, v = line.partition("=")
+                k = k.strip()
+                v = v.strip()
+                if (v.startswith('"') and v.endswith('"')) or \
+                   (v.startswith("'") and v.endswith("'")):
+                    v = v[1:-1]
+                if k:
+                    out[k] = v
+        except Exception:
+            return out
+        return out
+
+
+def _ensure_env_loaded() -> None:
+    """Make sure .env values are visible via os.environ. Safe to call repeatedly."""
+    try:
+        env = load_env() or {}
+    except Exception:
+        env = {}
+    for k, v in env.items():
+        # Don't overwrite existing process env (operator may have already set it).
+        if k and (k not in os.environ or not os.environ.get(k)):
+            os.environ[k] = v
 
 
 # Optional ranker — Agent E deliverable. Graceful fallback if missing.
@@ -384,12 +420,11 @@ def api_rank(body: RankBody) -> JSONResponse:
             result = rank_mod.rank_hotels(  # type: ignore[attr-defined]
                 hotels,
                 balances=balances,
-                fhr_inputs=fhr_inputs,
-                points_valuations=preloaded.get("points_valuations") or {},
+                valuations=preloaded.get("points_valuations") or {},
                 loyalty_programs=preloaded.get("loyalty_programs") or {},
                 fhr_perk_values=preloaded.get("fhr_perk_values") or {},
                 perk_rules=preloaded.get("perk_rules") or {},
-                fhr_eligible_brands=preloaded.get("fhr_eligible_brands") or {},
+                fhr_inputs=fhr_inputs,
             )
             if not isinstance(result, list):
                 # Some implementations wrap in {"ranked": [...]}
@@ -438,6 +473,23 @@ def api_account() -> JSONResponse:
             "Could not read the account file.",
             code="account_unreadable",
         )
+
+
+# ---------------------------------------------------------------------------
+# /api/map-key — return Google Maps JS API key (or null) for the UI to embed
+# ---------------------------------------------------------------------------
+
+@app.get("/api/map-key")
+async def get_map_key() -> JSONResponse:
+    """Expose GOOGLE_MAPS_API_KEY (or null) so the UI can load Maps JS.
+
+    Without a key, Maps still renders (watermarked "for development purposes
+    only") and Street View falls back to the legacy keyless svembed URL.
+    The key is read from .env via common.load_env() and merged into os.environ.
+    """
+    _ensure_env_loaded()
+    k = os.environ.get("GOOGLE_MAPS_API_KEY", "").strip()
+    return JSONResponse({"key": k or None})
 
 
 # ---------------------------------------------------------------------------
