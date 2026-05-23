@@ -1,0 +1,45 @@
+{
+  "fb_credit_usd_property":           100,
+  "daily_breakfast_2pax_usd":          60,
+  "late_checkout_4pm_usd":             40,
+  "noon_check_in_usd":                 25,
+  "room_upgrade_usd_uncertain":        50,
+  "guaranteed_4pm_usd":                40,
+  "welcome_amenity_usd":               20,
+  "complimentary_wifi_usd":            15,
+  "_meta": {
+    "uncertain_keys": ["room_upgrade_usd_uncertain", "welcome_amenity_usd"],
+    "regional_haircut_pct": {
+      "USD": 0.00,
+      "EUR": 0.06,
+      "GBP": 0.06,
+      "JPY": 0.05,
+      "MXN": 0.04,
+      "CHF": 0.06,
+      "AED": 0.03,
+      "CAD": 0.03,
+      "AUD": 0.04,
+      "CNY": 0.05,
+      "HKD": 0.03,
+      "SGD": 0.04,
+      "THB": 0.05,
+      "INR": 0.05,
+      "BRL": 0.06,
+      "ZAR": 0.05,
+      "TRY": 0.07,
+      "_default": 0.05
+    },
+    "haircut_rationale": "FHR USD credit converts at folio FX which often clips 3-6% vs market mid. Higher-volatility currencies (TRY, BRL) eat more. Currencies pegged or tightly managed (AED, HKD) eat less.",
+    "user_overrideable": true,
+    "perk_application_notes": {
+      "fb_credit_usd_property": "Most FHR properties post $100 F&B credit per stay; some post per night — verify on rate detail.",
+      "daily_breakfast_2pax_usd": "Two-person continental or buffet, typical $30/pax/day at luxury properties.",
+      "late_checkout_4pm_usd": "Subject to availability — never guaranteed unless rate fine print says so.",
+      "noon_check_in_usd": "Subject to availability.",
+      "room_upgrade_usd_uncertain": "Upgrade is subject-to-availability; the $50 default is a conservative expected value, not a guaranteed dollar figure.",
+      "guaranteed_4pm_usd": "Some FHR rates explicitly guarantee 4pm late checkout — that's worth more than the subject-to-availability version.",
+      "welcome_amenity_usd": "Variable: fruit plate, wine, spa credit. Conservative floor.",
+      "complimentary_wifi_usd": "Many FHR-eligible properties already include wifi; only count this where the cash rate does not."
+    }
+  }
+}

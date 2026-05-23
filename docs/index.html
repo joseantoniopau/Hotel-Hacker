@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>hotel-hacker — find the true cheapest hotel stay, the one the sticker price hides</title>
+<meta name="description" content="A free, self-hosted tool that shows the true out-the-door cost of any hotel — points value, free-night deals, Amex Fine Hotels & Resorts perks, resort fees, and currency arbitrage layered into one ranking. Free, runs on your own computer." />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">hotel-hacker<span class="ver">v0.1</span></div>
+  <nav class="topnav">
+    <a href="#what">What it does</a>
+    <a href="#vs-google">vs Google</a>
+    <a href="#install">Install</a>
+    <a href="#use">How to use</a>
+    <a href="https://github.com/joseantoniopau/Hotel-Hacker" target="_blank" rel="noopener">GitHub &rarr;</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero fade-in">
+  <h1>Find the <span class="accent">true</span> cheapest hotel stay &mdash; the one the sticker price hides.</h1>
+  <p class="lede">Google shows one price. Hotel Hacker shows the TRUE out-the-door cost, with points, free-night deals, and Amex Fine Hotels &amp; Resorts perks layered in. Free, runs on your own computer.</p>
+  <div class="cta">
+    <a class="btn btn--primary" href="#install">Install in 10 minutes &rarr;</a>
+    <a class="btn" href="https://github.com/joseantoniopau/Hotel-Hacker" target="_blank" rel="noopener">View on GitHub</a>
+  </div>
+  <p class="note">Only the FREE SerpApi account needed. No paid subscription required &mdash; unlike flight_hacker's $99/year Seats.aero.</p>
+
+  <div class="ticker" aria-label="Sample savings example">
+    <span class="ticker-num" data-target="847">$0</span>
+    <span class="ticker-label">saved on a sample 4-night Tokyo stay (illustrative)</span>
+  </div>
+</section>
+
+<section id="what" class="block fade-in">
+  <h2 data-num="01 / WHAT IT DOES">What it does, in plain English</h2>
+  <p class="lede">When you search Google for a hotel, you see one nightly price. That's it. Hotel Hacker adds everything Google hides.</p>
+  <ul class="features">
+    <li><strong>&#128176; True total cost.</strong> Rolls resort fees, parking, and wifi into the math so the ranking can't lie. The number you see is the number you'll actually pay.</li>
+    <li><strong>&#127919; Points &amp; free-night smarts.</strong> Knows Marriott 5&rarr;4, IHG 4th-night-free, Hilton 5th-free, and Hyatt's category sweet spots. Tells you when paying with points beats paying cash.</li>
+    <li><strong>&#128142; Amex FHR perks valued in dollars.</strong> $100 F&amp;B credit, daily breakfast for two, 4pm checkout, room upgrade &mdash; added up against the rate so you can see if FHR actually wins.</li>
+    <li><strong>&#128177; Currency arbitrage flags.</strong> Same property quoted in JPY vs USD can swing 2&ndash;8%. We notice. You don't have to.</li>
+    <li><strong>&#128681; Risk badges on every row.</strong> LEGAL / GRAY / TOS-RISK so you always know what you're booking and what you're risking.</li>
+    <li><strong>&#128202; Every number explains itself.</strong> Each row shows the raw price &rarr; effective price math in one sentence. No black boxes.</li>
+    <li><strong>&#128274; Local only.</strong> Your balances and searches never leave your computer. No accounts, no tracking, no cookies.</li>
+  </ul>
+</section>
+
+<section id="vs-google" class="block fade-in">
+  <h2 data-num="02 / VS GOOGLE">Why this is better than Google</h2>
+  <p class="lede">Google Hotels is fine for a quick nightly rate. It is blind to almost every way real travelers actually save money &mdash; points, free-night mechanics, Amex perks, and currency mismatches. Hotel Hacker is the layer Google doesn't see.</p>
+
+  <h3>Real-world examples</h3>
+
+  <div class="example">
+    <h4>Example 1 &mdash; 4 nights, Park Hyatt Tokyo <span class="ill">(illustrative)</span></h4>
+    <table class="cmp">
+      <tr><td>What Google shows</td><td>$580/night &times; 4 = $2,320 cash</td></tr>
+      <tr><td>What Hotel Hacker finds</td><td><strong>30,000 Hyatt pts/night &times; 4 = 120,000 pts (~$2,040 at 1.7&cent;/pt)</strong></td></tr>
+      <tr><td>Bonus</td><td>You earn a category-bump on the redemption, and your cash stays in your account.</td></tr>
+      <tr><td>You save</td><td class="save"><strong>$280 &mdash; and you keep the cash.</strong></td></tr>
+    </table>
+  </div>
+
+  <div class="example">
+    <h4>Example 2 &mdash; 5 nights, La Mamounia Marrakech (FHR-eligible) <span class="ill">(illustrative)</span></h4>
+    <table class="cmp">
+      <tr><td>Sticker rate</td><td>$880/night &times; 5 = $4,400</td></tr>
+      <tr><td>Via Amex FHR</td><td>$830/night flexible &times; 5 = $4,150</td></tr>
+      <tr><td>FHR perks valued</td><td><strong>&minus; $100 F&amp;B credit &minus; $300 daily breakfast &minus; $50 upgrade = $3,700 effective</strong></td></tr>
+      <tr><td>Caveat</td><td>FHR perks only count when you book through Amex Travel with an eligible card.</td></tr>
+      <tr><td>You save</td><td class="save"><strong>$700 &mdash; on the exact same room.</strong></td></tr>
+    </table>
+  </div>
+
+  <div class="example">
+    <h4>Example 3 &mdash; 3 nights, NYC midtown Marriott <span class="ill">(illustrative)</span></h4>
+    <table class="cmp">
+      <tr><td>What Google shows</td><td>$420/night &times; 3 + $50 resort fee/night = $1,410</td></tr>
+      <tr><td>Marriott points</td><td><strong>50K pts/night &times; 3 = 150K pts (~$1,200 at 0.8&cent;/pt) &mdash; resort fees waived on award stays</strong></td></tr>
+      <tr><td>Bonus</td><td>You still earn elite-night credit toward status.</td></tr>
+      <tr><td>You save</td><td class="save"><strong>$210 plus elite-night credit.</strong></td></tr>
+    </table>
+  </div>
+
+  <h3>What Hotel Hacker does vs. Google Hotels</h3>
+  <div class="comparison">
+    <table>
+      <thead>
+        <tr><th>What you might want to do</th><th>Google Hotels / OTA</th><th>hotel-hacker</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Show resort fees, parking, and wifi in the total</td><td class="n">Hidden until checkout</td><td class="y">Rolled into ranking</td></tr>
+        <tr><td>Show points-redemption value in dollars</td><td class="n">No</td><td class="y">Per-program valuation, side-by-side</td></tr>
+        <tr><td>Show FHR perks priced in dollars</td><td class="n">N/A</td><td class="y">$100 credit + breakfast + upgrade = math</td></tr>
+        <tr><td>Catch currency arbitrage (JPY vs USD folio)</td><td class="n">No</td><td class="y">Flagged on every row</td></tr>
+        <tr><td>Show free-night mechanics (5&rarr;4, 4th-free)</td><td class="n">No</td><td class="y">Built-in rules per program</td></tr>
+        <tr><td>Show refundability prominently</td><td class="p">Buried</td><td class="y">Top-level badge</td></tr>
+        <tr><td>Explain every number on the row</td><td class="n">No</td><td class="y">One-sentence breakdown per row</td></tr>
+        <tr><td>Work without a Google account</td><td class="n">Account tracked</td><td class="y">No account needed</td></tr>
+        <tr><td>Work for Amex Fine Hotels &amp; Resorts comparisons</td><td class="n">No</td><td class="y">Paste FHR rate &rarr; ranked head-to-head</td></tr>
+        <tr><td>Draft a polite upgrade-request email</td><td class="n">No</td><td class="y">Template you copy/paste yourself</td></tr>
+        <tr><td>Flag TOS-risky tactics with clear warnings</td><td class="n">Hidden from you</td><td class="y">Red TOS-RISK badge + full disclosure</td></tr>
+        <tr><td>Privacy &mdash; runs locally, no tracking</td><td class="n">Tracked</td><td class="y">On your computer only</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="install" class="block fade-in">
+  <h2 data-num="03 / INSTALL">How to install (10 minutes, no coding required)</h2>
+  <p class="lede">If you've never opened Terminal before, that's okay &mdash; we'll walk you through it. Every step explains what's about to happen and why, before any command.</p>
+
+  <div class="prereqs">
+    <h3>What you need first</h3>
+    <ul>
+      <li>A Mac or Linux computer. (Windows users: see the bottom of this page &mdash; we'll walk you through WSL.)</li>
+      <li>About 10 minutes.</li>
+      <li><strong>A FREE SerpApi account</strong> at <a href="https://serpapi.com/" target="_blank" rel="noopener">serpapi.com</a>. The free tier covers casual use; no paid plan required. (SerpApi is the service that lets the tool see hotel prices.)</li>
+      <li>(Optional) An Amex Platinum, Centurion, or Business Platinum card &mdash; only if you want to compare Fine Hotels &amp; Resorts perks.</li>
+    </ul>
+  </div>
+
+  <ol class="steps">
+    <li>
+      <h4>Open Terminal (the black window where you type commands)</h4>
+      <p>If you've never seen Terminal before, that's okay &mdash; it just looks like a black box with a blinking cursor. On a Mac: press <code>Cmd + Space</code>, type "Terminal", press Enter. A black window opens. That's where you'll paste the commands below.</p>
+    </li>
+
+    <li>
+      <h4>Check that Python is installed</h4>
+      <p>Python is the language Hotel Hacker is written in. Most Macs already have it. Copy-paste this into Terminal and press Enter:</p>
+      <pre><code>python3 --version</code></pre>
+      <p>If you see <code>Python 3.10</code> or higher, you're good. If not, download from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org/downloads</a> first, then come back.</p>
+    </li>
+
+    <li>
+      <h4>Download the tool</h4>
+      <p>This just copies the tool to a folder on your Desktop. It takes about 10 seconds. Paste this whole block (two commands joined by &amp;&amp;):</p>
+      <pre><code>git clone https://github.com/joseantoniopau/Hotel-Hacker ~/Desktop/hotel-hacker &amp;&amp; cd ~/Desktop/hotel-hacker</code></pre>
+      <p>You'll end up inside a new folder called <code>hotel-hacker</code> on your Desktop.</p>
+    </li>
+
+    <li>
+      <h4>Run the installer</h4>
+      <p>This sets up the helper files Hotel Hacker needs to run. Takes about 30 seconds.</p>
+      <pre><code>./install.sh</code></pre>
+      <p>You'll see lots of words go by &mdash; that's normal, it's just listing each helper as it gets installed. When it finishes, you'll see a "done" message and your normal cursor returns.</p>
+    </li>
+
+    <li>
+      <h4>Add your free login key (also called an API key)</h4>
+      <p>After you sign up at <a href="https://serpapi.com/" target="_blank" rel="noopener">serpapi.com</a>, they'll give you a key &mdash; it'll look like a long string of letters and numbers. This step lets the tool use that key to look up hotel prices on your behalf.</p>
+      <pre><code>./setup-keys.sh</code></pre>
+      <p>When it asks for the SerpApi key, paste it in and press Enter. That's it.</p>
+    </li>
+
+    <li>
+      <h4>Tell it your points balances</h4>
+      <p>This is what makes the tool know which redemptions you can actually book. Open this file with TextEdit (any plain text editor works):</p>
+      <pre><code>~/Desktop/hotel-hacker/data/user_balances.json</code></pre>
+      <p>You'll see a list of programs with zeros next to them. Change the zeros to your actual point balances (log into your card and hotel accounts to check). Save the file. If you don't have any points yet, just leave the zeros &mdash; the tool still works for cash and FHR comparisons.</p>
+    </li>
+
+    <li>
+      <h4>Launch the tool</h4>
+      <p>This starts the tool and serves the website on your own computer.</p>
+      <pre><code>python3 ui/server.py</code></pre>
+      <p>You'll see <code>Uvicorn running on http://127.0.0.1:8788</code>. <strong>Leave this Terminal window open</strong> &mdash; that's the tool running. If you close it, the website goes down.</p>
+    </li>
+
+    <li>
+      <h4>Open the website</h4>
+      <p>Open your web browser and go to:</p>
+      <pre><code>http://127.0.0.1:8788</code></pre>
+      <p>The Hotel Hacker interface loads. You're done.</p>
+    </li>
+  </ol>
+</section>
+
+<section id="use" class="block fade-in">
+  <h2 data-num="04 / HOW TO USE">How to use it</h2>
+  <ol class="steps steps--small">
+    <li>
+      <h4>Type your destination in the search box.</h4>
+      <p>Like "Tokyo" or "Park Hyatt Marrakech". Be as specific as you want.</p>
+    </li>
+    <li>
+      <h4>Pick your check-in and check-out dates.</h4>
+      <p>Click the date picker, choose the two dates, done.</p>
+    </li>
+    <li>
+      <h4>Click "FIND HOTELS".</h4>
+      <p>Big amber button on the right side of the search bar.</p>
+    </li>
+    <li>
+      <h4>Wait about 10&ndash;20 seconds.</h4>
+      <p>The tool is talking to SerpApi and crunching points math in the background. First search for a route is slower; later ones are cached and instant.</p>
+    </li>
+    <li>
+      <h4>Look at the EFFECTIVE column.</h4>
+      <p>That's the true out-the-door cost &mdash; whether you pay cash, use points, or book through FHR. Sorted cheapest first. Hover any row to see the one-sentence math.</p>
+    </li>
+    <li>
+      <h4>Click "Book" on the row you want.</h4>
+      <p>You'll be taken directly to the hotel's official site (or Amex Travel for FHR). You book there, with your own card. The tool never touches your payment info.</p>
+    </li>
+  </ol>
+
+  <h3>Things you can also do</h3>
+  <ul class="features">
+    <li><strong>Paste an FHR rate manually.</strong> If you're on amextravel.com and see a Fine Hotels &amp; Resorts rate for your stay, paste it into the FHR box on any row. The tool re-ranks instantly with the FHR perks valued in dollars.</li>
+    <li><strong>Draft a polite upgrade-request email.</strong> Click "Draft email" on any row. The tool writes a courteous pre-arrival message &mdash; you copy it into your own email and send it. (We never send anything for you.)</li>
+    <li><strong>Update your balances anytime.</strong> Re-open <code>data/user_balances.json</code>, change the numbers, save. The tool picks it up on the next search.</li>
+    <li><strong>Watch the SerpApi quota counter.</strong> The small number in the corner shows how many free searches you have left this month. It refreshes lazily &mdash; no surprises.</li>
+  </ul>
+
+  <h3>Tomorrow and after</h3>
+  <p>You only install once. After that, to use it again:</p>
+  <ol class="next-use">
+    <li>Open Terminal</li>
+    <li>Type: <code>cd ~/Desktop/hotel-hacker &amp;&amp; python3 ui/server.py</code></li>
+    <li>Open <code>http://127.0.0.1:8788</code> in your browser</li>
+  </ol>
+  <p>To stop it: in the Terminal window, press <code>Ctrl + C</code>.</p>
+</section>
+
+<section class="block fade-in">
+  <h2 data-num="05 / PRIVACY &amp; SAFETY">Privacy and safety</h2>
+  <ul class="features">
+    <li><strong>&#9989; Runs on your own computer.</strong> Nothing is uploaded anywhere. The tool just makes API calls to SerpApi (like your browser does when you visit a site).</li>
+    <li><strong>&#9989; We never see your Amex card.</strong> FHR perks are valued from a rate YOU paste in from amextravel.com. The tool has no card-on-file, no Amex login, nothing.</li>
+    <li><strong>&#9989; No tracking, no ads, no cookies.</strong> Unlike Google, your searches are never tied to your identity.</li>
+    <li><strong>&#9989; Bookings happen on the hotel's or Amex Travel's site.</strong> Hotel Hacker just points you there &mdash; it never handles your payment info.</li>
+    <li><strong>&#9989; We can draft a polite pre-arrival upgrade-request email, but we never send it.</strong> You copy/paste it into your own email and send it yourself. Always your call.</li>
+  </ul>
+  <div class="tos-note">
+    <strong>&#9888;&#65039; TOS-RISK tactics:</strong> A handful of tactics (VPN/locale-shopping to get different regional prices) are shown with a red <code>TOS-RISK</code> badge and full warnings. We never auto-execute them. You decide what's right for you.
+  </div>
+</section>
+
+<section class="block fade-in">
+  <h2 data-num="06 / TROUBLESHOOTING">Troubleshooting</h2>
+  <dl class="faq">
+    <dt>I get an error running ./install.sh</dt>
+    <dd>This is almost always a Python version issue. Type <code>python3 --version</code> &mdash; if it's below 3.10, install a newer Python from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org/downloads</a> and try again.</dd>
+
+    <dt>The website doesn't load at 127.0.0.1:8788</dt>
+    <dd>The tool only runs while the Terminal window from step 7 is open. If you closed it, just reopen Terminal and run <code>cd ~/Desktop/hotel-hacker &amp;&amp; python3 ui/server.py</code> again.</dd>
+
+    <dt>No hotels are coming back when I search</dt>
+    <dd>Check that your SerpApi key was saved correctly. In Terminal: <code>cat ~/Desktop/hotel-hacker/.env</code>. You should see a line starting with <code>SERPAPI_KEY=</code> followed by your key. If it's empty or missing, run <code>./setup-keys.sh</code> again.</dd>
+
+    <dt>I changed my balances but the tool doesn't use them</dt>
+    <dd>Make sure you saved the file (<code>Cmd + S</code> in TextEdit) and that you edited the right file: <code>~/Desktop/hotel-hacker/data/user_balances.json</code>. Refresh the web page. If TextEdit added a <code>.txt</code> extension by accident, rename the file back to <code>user_balances.json</code>.</dd>
+
+    <dt>I can't figure out where to find the FHR rate to paste in</dt>
+    <dd>On <a href="https://www.amextravel.com/" target="_blank" rel="noopener">amextravel.com</a>, search for your hotel and dates. Look for the "Fine Hotels &amp; Resorts" filter or badge. The rate you want is the "best flexible" nightly rate &mdash; the one that doesn't say "non-refundable". Paste that USD number into the FHR box on the matching row in Hotel Hacker.</dd>
+
+    <dt>I'm on Windows</dt>
+    <dd>Install WSL (Windows Subsystem for Linux) using <a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank" rel="noopener">Microsoft's instructions</a>. Once WSL is set up, open the Ubuntu/WSL terminal and follow the Mac steps from there &mdash; they all work identically inside WSL.</dd>
+
+    <dt>The SerpApi quota counter says I'm running out</dt>
+    <dd>The free tier is 250 searches/month. Searches you've already done in the last 24 hours are cached locally and don't count again. If you genuinely need more, SerpApi has paid tiers &mdash; but most casual users never come close.</dd>
+  </dl>
+</section>
+
+<section class="block fade-in">
+  <h2 data-num="07 / WHAT THIS DOES NOT DO">What this does NOT do</h2>
+  <ul class="features">
+    <li>&#10060; <strong>Does not book the hotel for you.</strong> It shows you the cheapest path and links you to the official site (or Amex Travel for FHR). You book there.</li>
+    <li>&#10060; <strong>Does not see your credit card.</strong> You only paste in a rate number from amextravel.com. No card details, no logins, nothing leaves your machine.</li>
+    <li>&#10060; <strong>Does not track you.</strong> Everything is local. No accounts, no cookies, no analytics, no phone-home.</li>
+    <li>&#10060; <strong>Does not help with flights.</strong> For flights, use the sibling project: <a href="https://github.com/joseantoniopau/flight_hacker" target="_blank" rel="noopener">flight_hacker</a> (and its companion site <a href="https://joseantoniopau.github.io/flight_hacker/" target="_blank" rel="noopener">joseantoniopau.github.io/flight_hacker</a>).</li>
+  </ul>
+</section>
+
+<footer>
+  <p>MIT license &middot; Free for any use &middot; Sibling project: <a href="https://github.com/joseantoniopau/flight_hacker" target="_blank" rel="noopener">flight_hacker</a></p>
+  <p><a href="https://github.com/joseantoniopau/Hotel-Hacker" target="_blank" rel="noopener">github.com/joseantoniopau/Hotel-Hacker</a></p>
+</footer>
+
+</main>
+
+<script>
+(function () {
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Stagger fade-in via IntersectionObserver
+  if ('IntersectionObserver' in window) {
+    var fadeEls = document.querySelectorAll('.fade-in');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry, i) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          var delay = prefersReduced ? 0 : (i * 60);
+          setTimeout(function () { el.classList.add('is-in'); }, delay);
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    fadeEls.forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll('.fade-in').forEach(function (el) { el.classList.add('is-in'); });
+  }
+
+  // Hero ticker — count up to data-target
+  var ticker = document.querySelector('.ticker-num[data-target]');
+  if (ticker) {
+    var target = parseInt(ticker.getAttribute('data-target'), 10) || 0;
+    if (prefersReduced) {
+      ticker.textContent = '$' + target.toLocaleString();
+    } else {
+      var started = false;
+      var startTicker = function () {
+        if (started) return;
+        started = true;
+        var duration = 1400;
+        var startTime = null;
+        var ease = function (t) { return 1 - Math.pow(1 - t, 3); };
+        var step = function (ts) {
+          if (!startTime) startTime = ts;
+          var p = Math.min(1, (ts - startTime) / duration);
+          var v = Math.round(target * ease(p));
+          ticker.textContent = '$' + v.toLocaleString();
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+
+      if ('IntersectionObserver' in window) {
+        var tio = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) { startTicker(); tio.disconnect(); }
+          });
+        }, { threshold: 0.3 });
+        tio.observe(ticker);
+      } else {
+        startTicker();
+      }
+    }
+  }
+})();
+</script>
+
+</body>
+</html>

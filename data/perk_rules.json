@@ -1,0 +1,35 @@
+{
+  "fhr_min_nights": 1,
+  "fhr_requires_card": ["Amex Platinum", "Amex Centurion", "Amex Business Platinum"],
+  "fhr_paste_required_fields": ["best_flexible_rate_usd", "applicable_offer_credit_usd", "property_currency"],
+  "fhr_default_perks": [
+    "fb_credit_usd_property",
+    "daily_breakfast_2pax_usd",
+    "late_checkout_4pm_usd",
+    "noon_check_in_usd",
+    "room_upgrade_usd_uncertain",
+    "complimentary_wifi_usd"
+  ],
+  "fhr_book_via": "amextravel.com",
+  "fhr_auto_login": false,
+  "free_night_min_consecutive_nights": {
+    "Marriott": 5,
+    "IHG": 4,
+    "Hilton": 5
+  },
+  "free_night_award_only": {
+    "Marriott": true,
+    "IHG": true,
+    "Hilton": true
+  },
+  "refundability_penalty_pct": 0.05,
+  "tiebreaker_threshold_usd": 5,
+  "tiebreaker_priority": ["refundable", "fhr", "points", "raw"],
+  "currency_arb_min_signal_pct": 0.02,
+  "notes": {
+    "fhr_min_nights": "FHR has no formal minimum-night requirement; some properties impose their own.",
+    "refundability_penalty_pct": "5% of raw_total_usd added to effective when rate is non-refundable. Represents the expected option-value of being able to walk away if plans change.",
+    "tiebreaker_threshold_usd": "When effective costs are within $5, prefer in this order: refundable, then FHR (perk-stacked), then points, then plain cash. The $5 band absorbs noise.",
+    "currency_arb_min_signal_pct": "Below 2% delta between query-currency and home-currency totals, don't flag — too noisy after FX spread."
+  }
+}

@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+cache/
+!cache/.gitkeep
+account.json
+data/user_balances.json
+.DS_Store
+*.log

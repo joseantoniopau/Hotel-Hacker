@@ -1,0 +1,22 @@
+{
+  "currencies": {
+    "Amex Membership Rewards": 0,
+    "Chase Ultimate Rewards": 0,
+    "Citi ThankYou": 0,
+    "Capital One Miles": 0,
+    "Bilt Rewards": 0
+  },
+  "programs": {
+    "World of Hyatt": 0,
+    "Marriott Bonvoy": 0,
+    "Hilton Honors": 0,
+    "IHG One Rewards": 0,
+    "Accor Live Limitless": 0,
+    "Wyndham Rewards": 0,
+    "Choice Privileges": 0,
+    "Best Western Rewards": 0,
+    "Radisson Rewards Americas": 0
+  },
+  "cards": ["Amex Platinum"],
+  "_note": "Copy this file to user_balances.json and fill in your actual balances. The .example.json file is committed; user_balances.json is gitignored. Cards list determines FHR eligibility — keep 'Amex Platinum' (or Centurion / Business Platinum) in the list to enable FHR ranking."
+}

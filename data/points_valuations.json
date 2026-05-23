@@ -1,0 +1,41 @@
+{
+  "World of Hyatt": 1.7,
+  "Marriott Bonvoy": 0.8,
+  "Hilton Honors": 0.5,
+  "IHG One Rewards": 0.5,
+  "Wyndham Rewards": 1.0,
+  "Choice Privileges": 0.6,
+  "Best Western Rewards": 0.6,
+  "Accor Live Limitless (ALL)": 2.0,
+  "Radisson Rewards Americas": 0.4,
+  "Leaders Club Preferred": 0.0,
+  "Stash Hotel Rewards": 0.7,
+  "Wyndham Diamond": 1.0,
+  "Sonesta Travel Pass": 0.4,
+  "Omni Select Guest": 0.0,
+  "Mandarin Oriental Fans": 0.0,
+  "Aman Connoisseur": 0.0,
+  "_meta": {
+    "currency": "USD cents per point",
+    "source": "TPG/UP/OMAAT/VFTW floor 2026",
+    "user_overrideable": true,
+    "notes": {
+      "World of Hyatt": "Best-in-class cpp on cash-equivalent redemptions; 1.7c is floor, ceiling >2.5c on high-category off-peak.",
+      "Marriott Bonvoy": "0.8c floor reflects dynamic pricing post-2023 devaluation; 5th-night-free pushes effective up ~25% on 5-night stays.",
+      "Hilton Honors": "0.5c is honest floor; many high-end properties price at 0.3-0.4c — verify per redemption.",
+      "IHG One Rewards": "0.5c floor; PointBreaks-style promos historically pushed higher but are now rare.",
+      "Wyndham Rewards": "Flat 7.5K/15K/30K tiers create 1.0c+ outliers; floor stays at 1.0c for ranking.",
+      "Choice Privileges": "Underrated for Europe (Preferred Hotels affiliation 8-16K/night).",
+      "Best Western Rewards": "Conservative; rare transferable-currency partnership.",
+      "Accor Live Limitless (ALL)": "Fixed 2c — points-plus-cash mechanic at any increment, behaves like cash credit.",
+      "Radisson Rewards Americas": "Separate program from Radisson Rewards EMEA; thin redemption book.",
+      "Leaders Club Preferred": "Status program, not a points currency — value is upgrades + perks, not cpp.",
+      "Stash Hotel Rewards": "Independent-hotel program; cash-redeemable at fixed ratios.",
+      "Wyndham Diamond": "Status tier benefits more than points; cpp inherits from Wyndham Rewards.",
+      "Sonesta Travel Pass": "Post-IHG-split program; thin chart, conservative floor.",
+      "Omni Select Guest": "Free-night-after-N-stays model, not cpp-meaningful.",
+      "Mandarin Oriental Fans": "Status-only program; no points currency.",
+      "Aman Connoisseur": "Invitation-only; cash-side perks only."
+    }
+  }
+}

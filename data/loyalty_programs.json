@@ -1,0 +1,83 @@
+{
+  "Marriott Bonvoy": {
+    "free_night_rule": "5th_free_on_5_night_redemption",
+    "stack_rules": ["points_advance_book_then_top_up"],
+    "tier_required": null,
+    "consecutive_required": true,
+    "min_nights": 5,
+    "applies_to": "award_only",
+    "notes": "5th night free applies only on standard/PointSavers award redemptions of 5+ consecutive nights at the same property. Not available on cash rates. Points Advance lets you hold the booking without full balance and top up later."
+  },
+  "IHG One Rewards": {
+    "free_night_rule": "4th_free_on_4_consecutive_nights_award",
+    "stack_rules": [],
+    "tier_required": "Platinum+",
+    "consecutive_required": true,
+    "min_nights": 4,
+    "applies_to": "award_only",
+    "notes": "Platinum Elite and above earn the 4th-night-free on standard point redemptions of 4+ consecutive nights. Co-brand credit cards (IHG Premier/Traveler) confer Platinum status, making this widely accessible. Not available on cash bookings."
+  },
+  "Hilton Honors": {
+    "free_night_rule": "5th_free_on_5_night_award_diamond_gold",
+    "stack_rules": [],
+    "tier_required": "Gold+",
+    "consecutive_required": true,
+    "min_nights": 5,
+    "applies_to": "award_only",
+    "notes": "Gold and Diamond members receive the 5th night free on standard point redemptions of 5+ consecutive nights at the same property. Hilton Aspire, Surpass, and Business cards grant Gold or Diamond automatically."
+  },
+  "World of Hyatt": {
+    "free_night_rule": null,
+    "stack_rules": ["category_aware", "suite_upgrade_awards"],
+    "tier_required": null,
+    "consecutive_required": false,
+    "min_nights": null,
+    "applies_to": null,
+    "notes": "Hyatt does not offer a free-night-on-N-nights mechanic. Value comes from low chart prices (Cat 1-4) and Globalist suite-upgrade awards. Off-peak/standard/peak pricing matters more than night count."
+  },
+  "Accor Live Limitless": {
+    "free_night_rule": null,
+    "stack_rules": ["points_plus_cash_any_increment"],
+    "tier_required": null,
+    "consecutive_required": false,
+    "min_nights": null,
+    "applies_to": null,
+    "notes": "Accor uses a fixed 2000 points = 40 EUR redemption ratio that behaves like cash credit on any rate. No free-night-on-N-nights mechanic. The fixed ratio makes valuation trivial: cpp is a constant."
+  },
+  "Wyndham Rewards": {
+    "free_night_rule": null,
+    "stack_rules": ["flat_tier_pricing"],
+    "tier_required": null,
+    "consecutive_required": false,
+    "min_nights": null,
+    "applies_to": null,
+    "notes": "Flat 7.5K/15K/30K tiers per night regardless of cash rate. No bonus-night mechanic. Vacasa vacation rental redemptions also priced flat."
+  },
+  "Choice Privileges": {
+    "free_night_rule": null,
+    "stack_rules": [],
+    "tier_required": null,
+    "consecutive_required": false,
+    "min_nights": null,
+    "applies_to": null,
+    "notes": "No free-night mechanic. Sweet spots are Preferred Hotels affiliations at 8K-16K/night."
+  },
+  "Best Western Rewards": {
+    "free_night_rule": null,
+    "stack_rules": [],
+    "tier_required": null,
+    "consecutive_required": false,
+    "min_nights": null,
+    "applies_to": null,
+    "notes": "No bonus-night mechanic. Limited transferable-currency partnerships."
+  },
+  "Radisson Rewards Americas": {
+    "free_night_rule": null,
+    "stack_rules": [],
+    "tier_required": null,
+    "consecutive_required": false,
+    "min_nights": null,
+    "applies_to": null,
+    "notes": "Separate from Radisson Rewards EMEA since 2022. Thin redemption chart."
+  }
+}

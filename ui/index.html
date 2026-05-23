@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hotel-hacker &mdash; find the true cheapest stay</title>
+  <meta name="description" content="A small, honest tool that finds the actually-cheapest hotel for any trip — after points, free-night perks, FHR credits, and currency haircuts. Brutalist, layperson-friendly, runs locally.">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       HEADER BAR
+       ============================================================ -->
+  <header class="bar">
+    <div class="brand">
+      <span>hotel-hacker</span>
+      <span class="v">v0.1</span>
+    </div>
+    <div class="row-flex">
+      <span class="quota" id="quota">SerpApi: &mdash; / &mdash; left this month</span>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">MENU</button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       SHELL — sidebar + main
+       ============================================================ -->
+  <div class="shell">
+
+    <aside class="sidebar" id="sidebar">
+      <nav>
+        <button class="nav-item active" data-view="search">
+          <span class="nav-num">01</span>
+          <span>SEARCH</span>
+        </button>
+        <button class="nav-item" data-view="results">
+          <span class="nav-num">02</span>
+          <span>RESULTS</span>
+        </button>
+        <button class="nav-item" data-view="balances">
+          <span class="nav-num">03</span>
+          <span>BALANCES</span>
+        </button>
+        <button class="nav-item" data-view="about">
+          <span class="nav-num">04</span>
+          <span>ABOUT</span>
+        </button>
+      </nav>
+      <div class="nav-footer">
+        Runs locally on your computer.<br>
+        No accounts. No tracking.<br>
+        <span class="brass">127.0.0.1:8788</span>
+      </div>
+    </aside>
+
+    <main>
+
+      <!-- ============================================================
+           VIEW: SEARCH
+           ============================================================ -->
+      <section class="view active" id="view-search">
+
+        <!-- Animated ticker -->
+        <div class="ticker fade-in" aria-label="Savings ticker">
+          <span class="ticker-label">Saved across all users this month</span>
+          <span class="ticker-num" id="ticker">$0</span>
+          <span class="ticker-foot">illustrative</span>
+        </div>
+
+        <h2><span>01 / SEARCH</span></h2>
+        <p class="muted">Tell us where and when. We'll find the hotels Google Hotels knows about, then re-rank them by what they'll <em>actually</em> cost after points, FHR credits, free-night perks, and currency clipping.</p>
+
+        <form id="search-form" class="card fade-in" autocomplete="off">
+          <div class="grid">
+            <div class="field">
+              <label for="q">DESTINATION</label>
+              <input type="text" id="q" name="q" placeholder="Tokyo, Mexico City, Paris..." required>
+            </div>
+            <div class="field">
+              <label for="check_in">CHECK-IN</label>
+              <input type="date" id="check_in" name="check_in" required>
+            </div>
+            <div class="field">
+              <label for="check_out">CHECK-OUT</label>
+              <input type="date" id="check_out" name="check_out" required>
+            </div>
+          </div>
+          <div class="grid cols-2">
+            <div class="field">
+              <label for="adults">ADULTS</label>
+              <select id="adults" name="adults">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="currency">CURRENCY</label>
+              <select id="currency" name="currency">
+                <option value="USD" selected>USD &mdash; US Dollar</option>
+                <option value="EUR">EUR &mdash; Euro</option>
+                <option value="GBP">GBP &mdash; British Pound</option>
+                <option value="JPY">JPY &mdash; Japanese Yen</option>
+              </select>
+            </div>
+          </div>
+          <div class="row-flex mt-3">
+            <button class="btn" type="submit" id="btn-search">FIND HOTELS</button>
+            <span class="muted micro" id="search-status">Press <code>/</code> to focus the destination field.</span>
+          </div>
+        </form>
+
+        <!-- FHR optional panel -->
+        <details class="collapse fade-in" id="fhr-panel">
+          <summary>
+            <span><span class="tick"></span>ADD AMEX FHR DETAILS &nbsp;<span class="brass">(optional)</span></span>
+          </summary>
+          <div class="body">
+            <p class="muted micro">Paste the property's Fine Hotels &amp; Resorts rate here. Required only if you want us to score the FHR channel for a specific property after a search.</p>
+            <div class="grid cols-2">
+              <div class="field">
+                <label for="fhr-property">PROPERTY</label>
+                <select id="fhr-property"><option value="">— pick after a search —</option></select>
+              </div>
+              <div class="field">
+                <label for="fhr-currency">FOLIO CURRENCY</label>
+                <select id="fhr-currency">
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="JPY">JPY</option>
+                  <option value="MXN">MXN</option>
+                  <option value="CHF">CHF</option>
+                  <option value="AED">AED</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid cols-2">
+              <div class="field">
+                <label for="fhr-bfr">BEST FLEXIBLE RATE (USD)</label>
+                <input type="number" id="fhr-bfr" min="0" step="1" placeholder="e.g. 720">
+              </div>
+              <div class="field">
+                <label for="fhr-offer">APPLICABLE OFFER CREDIT (USD)</label>
+                <input type="number" id="fhr-offer" min="0" step="1" placeholder="e.g. 100">
+              </div>
+            </div>
+            <h4>PERKS APPLIED THIS STAY</h4>
+            <div class="checks">
+              <label><input type="checkbox" data-perk="fb_credit" checked> F&amp;B credit ($100)</label>
+              <label><input type="checkbox" data-perk="breakfast" checked> Daily breakfast ($60)</label>
+              <label><input type="checkbox" data-perk="late_checkout"> 4 PM late checkout ($40)</label>
+              <label><input type="checkbox" data-perk="upgrade"> Room upgrade ($50, uncertain)</label>
+            </div>
+          </div>
+        </details>
+
+      </section>
+
+      <!-- ============================================================
+           VIEW: RESULTS
+           ============================================================ -->
+      <section class="view" id="view-results">
+        <h2><span>02 / RESULTS</span></h2>
+
+        <div class="top-pick-callout fade-in" id="top-pick">
+          <span id="top-pick-body">No results yet &mdash; run a search from the SEARCH tab.</span>
+        </div>
+
+        <div class="row-flex between mt-3">
+          <span class="micro muted" id="results-meta">&mdash;</span>
+          <button class="btn ghost" id="btn-rerank">RE-RANK WITH FHR</button>
+        </div>
+
+        <div class="table-wrap mt-3 fade-in">
+          <table class="brutal" id="results-table">
+            <thead>
+              <tr>
+                <th>RANK</th>
+                <th>HOTEL</th>
+                <th>LOCATION</th>
+                <th class="num">NIGHTS</th>
+                <th class="num">RAW $</th>
+                <th class="num">EFFECTIVE $</th>
+                <th>CHANNEL</th>
+                <th>BADGES</th>
+                <th>NOTES</th>
+              </tr>
+            </thead>
+            <tbody id="results-body">
+              <tr><td colspan="9" class="muted" style="text-align:center; padding: 32px;">No results yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="micro muted mt-5">Click any row to expand the full raw &rarr; effective breakdown. Press <code>Esc</code> to collapse.</p>
+      </section>
+
+      <!-- ============================================================
+           VIEW: BALANCES
+           ============================================================ -->
+      <section class="view" id="view-balances">
+        <h2><span>03 / BALANCES</span></h2>
+        <p class="muted">Your points and miles stay on your computer. Edit anything &mdash; save when you're done.</p>
+
+        <form id="bal-form" class="card fade-in">
+          <h3>TRANSFERABLE CURRENCIES</h3>
+          <div class="grid cols-2" id="bal-currencies">
+            <!-- filled by JS -->
+          </div>
+
+          <h3>HOTEL PROGRAMS</h3>
+          <div class="grid cols-2" id="bal-programs">
+            <!-- filled by JS -->
+          </div>
+
+          <h3>CARDS IN WALLET</h3>
+          <div class="checks" id="bal-cards">
+            <!-- filled by JS -->
+          </div>
+
+          <div class="row-flex mt-5">
+            <button class="btn" type="submit">SAVE BALANCES</button>
+            <span class="micro muted" id="bal-status">&mdash;</span>
+          </div>
+        </form>
+      </section>
+
+      <!-- ============================================================
+           VIEW: ABOUT
+           ============================================================ -->
+      <section class="view" id="view-about">
+        <h2><span>04 / ABOUT</span></h2>
+
+        <div class="about-grid">
+          <div>
+            <p>hotel-hacker is a small, honest tool that finds the actually-cheapest hotel for any trip you give it &mdash; not just the lowest sticker price, but the cheapest after everything that quietly changes the math: points redemptions, free-night perks, FHR credits, refundability, and currency haircuts.</p>
+            <p>It runs locally on your computer. There is no account, no tracking, no upsell. It uses Google Hotels (via SerpApi's free tier) for the listings, applies a transparent ranking formula, and explains every dollar of the result in one plain-English sentence.</p>
+
+            <h3>HOW IT WORKS</h3>
+            <ol class="steps">
+              <li class="step">
+                <h4>You enter where and when</h4>
+                <p>Destination, dates, who's coming.</p>
+              </li>
+              <li class="step">
+                <h4>We pull real rates</h4>
+                <p>From Google Hotels (one search of your 250/month free quota).</p>
+              </li>
+              <li class="step">
+                <h4>We re-rank by effective cost</h4>
+                <p>Raw price minus points value, minus free-night value, minus FHR credits, plus currency haircuts and flexibility penalty.</p>
+              </li>
+              <li class="step">
+                <h4>You see one explanation per row</h4>
+                <p>"$840 raw &minus; $100 FHR credit + $6 currency haircut = $746 net via Amex FHR." Click any row for the full math.</p>
+              </li>
+            </ol>
+
+            <h3>WHAT THIS DOES NOT DO</h3>
+            <p>Flights. For award-flight searching, see <a href="https://github.com/joseantoniopau/flight_hacker" target="_blank" rel="noopener">flight_hacker</a> &mdash; the sibling project this one was modeled after.</p>
+          </div>
+
+          <aside class="meta">
+            <div class="row"><span class="k">Version</span><span>0.1.0</span></div>
+            <div class="row"><span class="k">Port</span><span>127.0.0.1:8788</span></div>
+            <div class="row"><span class="k">License</span><span>MIT</span></div>
+            <div class="row"><span class="k">Source</span><span><a href="https://github.com/joseantoniopau/Hotel-Hacker" target="_blank" rel="noopener">GitHub</a></span></div>
+            <div class="row"><span class="k">Landing</span><span><a href="../docs/" target="_blank" rel="noopener">docs/</a></span></div>
+            <div class="row"><span class="k">Data</span><span>SerpApi (Google Hotels)</span></div>
+            <div class="row"><span class="k">Cache</span><span>24h wide / 12h details</span></div>
+          </aside>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ============================================================
+       TOAST + MODAL
+       ============================================================ -->
+  <div class="toast" id="toast">Saved.</div>
+
+  <div class="modal-bg" id="modal-bg" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <h3 id="modal-title">DRAFT UPGRADE EMAIL</h3>
+      <p class="muted micro">A polite four-sentence note you can paste into your own email. This tool never sends.</p>
+      <div class="draft" id="modal-draft"></div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="btn-modal-close">CLOSE</button>
+        <button class="btn" id="btn-modal-copy">COPY TO CLIPBOARD</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

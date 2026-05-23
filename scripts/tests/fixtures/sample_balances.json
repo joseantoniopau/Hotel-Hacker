@@ -1,0 +1,21 @@
+{
+  "currencies": {
+    "Amex Membership Rewards": 200000,
+    "Chase Ultimate Rewards": 145000,
+    "Citi ThankYou": 0,
+    "Capital One Miles": 0,
+    "Bilt Rewards": 0
+  },
+  "programs": {
+    "World of Hyatt": 120000,
+    "Marriott Bonvoy": 80000,
+    "Hilton Honors": 50000,
+    "IHG One Rewards": 30000,
+    "Accor Live Limitless": 0,
+    "Wyndham Rewards": 0,
+    "Choice Privileges": 0,
+    "Best Western Rewards": 0,
+    "Radisson Rewards Americas": 0
+  },
+  "cards": ["Amex Platinum"]
+}

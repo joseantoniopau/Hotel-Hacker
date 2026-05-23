@@ -1,0 +1,41 @@
+{
+  "brands_likely_eligible": [
+    "Four Seasons",
+    "Ritz-Carlton",
+    "St. Regis",
+    "Aman",
+    "Rosewood",
+    "Mandarin Oriental",
+    "Park Hyatt",
+    "Belmond",
+    "Auberge",
+    "Six Senses",
+    "Capella",
+    "Bulgari",
+    "Edition",
+    "Waldorf Astoria",
+    "Conrad",
+    "InterContinental",
+    "Andaz",
+    "Thompson",
+    "1 Hotels",
+    "Soho House (select)",
+    "Cheval Blanc",
+    "Raffles",
+    "Fairmont (select)",
+    "Banyan Tree",
+    "COMO",
+    "Oetker Collection",
+    "Le Bristol Paris",
+    "Hotel du Cap-Eden-Roc",
+    "Anantara (select)",
+    "Jumeirah"
+  ],
+  "_note": "Curated list — the FHR portfolio rotates quarterly. A brand on this list does not guarantee every property under that brand is FHR-eligible; verify per property at amextravel.com.",
+  "_rotation_cautions": {
+    "frequency": "Properties enter and exit the FHR program with no public schedule. Two-week rotation gaps have been observed.",
+    "regional_variance": "A brand may be FHR in Europe but not the same brand in Asia for the same chain.",
+    "verification_url": "https://thehotelscollection.com (Amex Travel — login required for live booking)",
+    "last_updated_basis": "2026-Q1 portfolio snapshot; treat as directional only"
+  }
+}
