@@ -985,9 +985,22 @@
         _state.apiKey = (data && data.key) ? data.key : null;
         if (!_state.apiKey) {
           console.info('[hh-map] No GOOGLE_MAPS_API_KEY — running watermarked dev mode.');
+          _showNoKeyHint();
         }
         _injectScript(_state.apiKey, onLoad, onError);
       });
+  }
+
+  function _showNoKeyHint() {
+    // One-time inline note inside the map toolbar explaining the watermark.
+    const hintEl = document.getElementById('map-hint');
+    if (!hintEl) return;
+    if (hintEl.dataset.nokeyHint === '1') return;
+    hintEl.dataset.nokeyHint = '1';
+    hintEl.innerHTML =
+      '— Google shows a faded "for development purposes only" overlay until you add a free Google Maps key. ' +
+      '<a href="https://console.cloud.google.com/google/maps-apis/start" target="_blank" rel="noopener" style="color:var(--accent);">Get one (~3 min)</a>, ' +
+      'then re-run <code style="background:var(--panel-2);padding:0 4px;">./setup-keys.sh</code>.';
   }
 
   // ----- pin DOM builder -----

@@ -74,7 +74,8 @@ You don't need to be a programmer. You don't need to be an Amex Platinum holder 
 
    **This is the big difference from our sibling project.** Unlike [flight_hacker](https://github.com/joseantoniopau/flight_hacker) which needs a **$99/year Seats.aero subscription**, hotel-hacker only needs a **free SerpApi account**. The free tier gives you 250 searches per month, which covers casual use — a typical trip-planning session uses 1 wide search plus a handful of detail lookups, so you can comfortably plan many trips per month without ever paying.
 
-4. **(Optional)** An Amex Platinum, Centurion, or Business Platinum card if you want to use the Fine Hotels & Resorts features. Everything else works without it.
+4. **(Optional)** A free **Google Maps API key**. Without one, the map at the top of the results page shows a faded "For development purposes only" watermark from Google. It still works — just looks unfinished. Getting a key takes ~3 minutes at [console.cloud.google.com/google/maps-apis/start](https://console.cloud.google.com/google/maps-apis/start): create a project, enable the Maps JavaScript / Maps Embed / Street View Static APIs, generate a key, paste it in when `setup-keys.sh` asks. Google's free tier covers ~28,000 map loads per month — way more than you'll ever use locally.
+5. **(Optional)** An Amex Platinum, Centurion, or Business Platinum card if you want to use the Amex Fine Hotels & Resorts features. Everything else works without it.
 
 ---
 

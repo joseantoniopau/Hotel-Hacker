@@ -66,13 +66,41 @@ if ! printf '%s' "$key" | grep -qE '^[A-Za-z0-9_-]+$'; then
   exit 1
 fi
 
+# ---- prompt for an OPTIONAL Google Maps key (removes the watermark) ---
+echo ""
+say "OPTIONAL — add a free Google Maps key to remove the \"for development purposes only\" watermark."
+note "Hotel-Hacker shows every result on a Google Map. Without a key, Google overlays"
+note "a faded \"For development purposes only\" banner. Adding a key (free, ~3 minutes)"
+note "removes it. To get one:"
+note "  1) Go to  https://console.cloud.google.com/google/maps-apis/start"
+note "  2) Create a project (any name)."
+note "  3) Enable these three APIs:  Maps JavaScript API,  Maps Embed API,  Street View Static API."
+note "  4) Open APIs & Services → Credentials → Create credentials → API key."
+note "  5) Copy the key. (You can restrict it to HTTP referrer \"http://127.0.0.1:8788/*\")."
+note "Press Enter to skip — the app still works, just with the watermark."
+echo ""
+read -r -p "Paste your Google Maps key (or press Enter to skip): " gkey
+gkey="${gkey#"${gkey%%[![:space:]]*}"}"
+gkey="${gkey%"${gkey##*[![:space:]]}"}"
+
 # ---- write the .env safely --------------------------------------------
 umask 077
-printf 'SERPAPI_KEY=%s\n' "$key" > "$ENV_FILE"
+{
+  printf 'SERPAPI_KEY=%s\n' "$key"
+  if [ -n "$gkey" ]; then
+    printf 'GOOGLE_MAPS_API_KEY=%s\n' "$gkey"
+  fi
+} > "$ENV_FILE"
 chmod 600 "$ENV_FILE"
 
 echo ""
-say "Saved your key to .env (and locked the file so only you can read it)."
+if [ -n "$gkey" ]; then
+  say "Saved both keys to .env (locked so only you can read it)."
+else
+  say "Saved your SerpApi key to .env (locked so only you can read it)."
+  note "No Google Maps key — the map will work with the watermark."
+  note "Add one later by re-running ./setup-keys.sh."
+fi
 echo ""
 echo "  You're done with setup. To launch the app, run:"
 echo ""
