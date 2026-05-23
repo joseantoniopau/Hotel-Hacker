@@ -266,6 +266,9 @@ The Amex Fine Hotels & Resorts perks are only credited when you've ticked at lea
 **"I'm on Windows"**
 Use WSL (Windows Subsystem for Linux) — https://learn.microsoft.com/en-us/windows/wsl/install — then follow the Mac/Linux steps above.
 
+**"I clicked Book and the external site threw an error (e.g. 'Could not connect to MySQL server')"**
+That error came from the **booking site you were sent to**, not from Hotel Hacker. Hotel Hacker has no database, no MySQL, no backend booking system — it's a pure-Python local server. When you click a booking link, you leave the tool entirely and load whichever site the rate came from. Try a different link in the same BOOK cell: "Hotel website" goes to the property's own site (usually the most reliable), "Maps" always works for finding it manually. If the rate source is an aggregator that's having backend trouble, search for the hotel directly on its own brand website — the rate is usually within a dollar or two of what the aggregator quoted.
+
 ---
 
 ## Privacy + safety

@@ -372,7 +372,10 @@
   }
 
   // ----------------------------------------------------------------
-  // BOOK column — up to 3 small links: SOURCE · DIRECT · MAPS
+  // BOOK column — small links ordered so the most reliable booking path wins.
+  // Hotel's own website first (brand-direct), then the rate's source (could be
+  // an aggregator like vio.com — these sometimes have backend hiccups), then
+  // a Google Maps lookup as a universal fallback.
   // ----------------------------------------------------------------
   function brandSearchUrl(domain, query) {
     const q = encodeURIComponent(query);
@@ -390,6 +393,15 @@
     }
   }
 
+  // Known third-party aggregators / resellers. When source_url points at one of
+  // these, we label it "Aggregator" so the user knows it's not the hotel's own
+  // site (the hotel-website link is the safer click for actual booking).
+  const AGGREGATOR_DOMAINS = new Set([
+    'vio.com', 'agoda.com', 'booking.com', 'expedia.com', 'hotels.com',
+    'priceline.com', 'kayak.com', 'trivago.com', 'tripadvisor.com',
+    'orbitz.com', 'travelocity.com',
+  ]);
+
   function bookLinks(n) {
     n = n || {};
     const name = n.name ?? '';
@@ -400,33 +412,50 @@
     const lon = loc.lon;
     const parts = [];
 
-    // 1) SOURCE — only if source_url is a valid URL
+    // 1) HOTEL — direct website of the hotel itself, when we can identify it.
+    //    This is the most reliable click for actual booking. We try the
+    //    source_url first (if it's the hotel's own site, not an aggregator),
+    //    then fall back to the brand's chain search if we know the chain.
+    let hotelDirectUrl = null;
+    let hotelDirectLabel = null;
     const sourceUrl = n.source_url ?? '';
+    let sourceHost = null;
     if (sourceUrl) {
       try {
-        const u = new URL(sourceUrl);
-        const host = u.hostname.replace(/^www\./, '');
-        if (host) {
-          parts.push(
-            `<a href="${escapeAttr(sourceUrl)}" target="_blank" rel="noopener noreferrer" title="Source listing">${escapeHtml(host)}</a>`
-          );
-        }
-      } catch (_) {
-        // invalid URL — skip
+        sourceHost = new URL(sourceUrl).hostname.replace(/^www\./, '') || null;
+      } catch (_) { sourceHost = null; }
+    }
+    const sourceIsAggregator = sourceHost && AGGREGATOR_DOMAINS.has(sourceHost);
+    if (sourceHost && !sourceIsAggregator) {
+      // The rate source IS the hotel's own website — that's the gold standard.
+      hotelDirectUrl = sourceUrl;
+      hotelDirectLabel = 'Hotel website';
+    } else {
+      // Source is an aggregator (or no source). Try chain-direct lookup.
+      const dom = brandDomain(name, n.brand);
+      if (dom) {
+        const queryStr = [name, city, country].filter(Boolean).join(' ');
+        hotelDirectUrl = brandSearchUrl(dom, queryStr || name);
+        hotelDirectLabel = 'Hotel website';
       }
     }
-
-    // 2) DIRECT — only if we can identify a brand domain
-    const dom = brandDomain(name, n.brand);
-    if (dom) {
-      const queryStr = [name, city, country].filter(Boolean).join(' ');
-      const directUrl = brandSearchUrl(dom, queryStr || name);
+    if (hotelDirectUrl) {
       parts.push(
-        `<a href="${escapeAttr(directUrl)}" target="_blank" rel="noopener noreferrer" title="Search ${escapeAttr(dom)}">DIRECT</a>`
+        `<a href="${escapeAttr(hotelDirectUrl)}" target="_blank" rel="noopener noreferrer" title="Book on the hotel's own site">${escapeHtml(hotelDirectLabel)}</a>`
       );
     }
 
-    // 3) MAPS — always shown
+    // 2) AGGREGATOR (if applicable) — only shown if the SerpApi rate source
+    //    differs from what we already linked above. Labeled so the user knows
+    //    they're being sent to a third-party site that may have its own issues.
+    if (sourceUrl && sourceUrl !== hotelDirectUrl && sourceHost) {
+      const label = sourceIsAggregator ? `Rate source (${sourceHost})` : sourceHost;
+      parts.push(
+        `<a href="${escapeAttr(sourceUrl)}" target="_blank" rel="noopener noreferrer" title="Where Google Hotels found this rate — third-party site">${escapeHtml(label)}</a>`
+      );
+    }
+
+    // 3) MAPS — always shown as a universal fallback (lookup by lat/lon or name)
     let mapsQuery;
     if (typeof lat === 'number' && typeof lon === 'number' && !isNaN(lat) && !isNaN(lon)) {
       mapsQuery = `${lat},${lon}`;
@@ -435,7 +464,7 @@
     }
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`;
     parts.push(
-      `<a href="${escapeAttr(mapsUrl)}" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">MAPS</a>`
+      `<a href="${escapeAttr(mapsUrl)}" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">Maps</a>`
     );
 
     return parts.join('<span class="sep">·</span>');
