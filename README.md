@@ -266,6 +266,9 @@ The Amex Fine Hotels & Resorts perks are only credited when you've ticked at lea
 **"I'm on Windows"**
 Use WSL (Windows Subsystem for Linux) — https://learn.microsoft.com/en-us/windows/wsl/install — then follow the Mac/Linux steps above.
 
+**"I found a hotel on Expedia/Booking that wasn't in Hotel Hacker's results — can I score it?"**
+Yes. Broad city searches (`Rome`) only return Google Hotels' top 20–30 results, which skews toward large commercial properties and misses small boutique places. **Paste any hotel URL into the destination field** — Expedia, Booking.com, Hotels.com, TripAdvisor, Hyatt, Marriott, Hilton, IHG — and Hotel Hacker auto-extracts the property name (plus the dates and guest count when present in the URL) and looks it up directly. The ranker then applies your balances, free-night perks, Amex Fine Hotels & Resorts math, and currency haircut to that specific property. You can also just type the hotel name plus city ("Ara Suite Rome").
+
 **"I clicked Book and the external site threw an error (e.g. 'Could not connect to MySQL server')"**
 That error came from the **booking site you were sent to**, not from Hotel Hacker. Hotel Hacker has no database, no MySQL, no backend booking system — it's a pure-Python local server. When you click a booking link, you leave the tool entirely and load whichever site the rate came from. Try a different link in the same BOOK cell: "Hotel website" goes to the property's own site (usually the most reliable), "Maps" always works for finding it manually. If the rate source is an aggregator that's having backend trouble, search for the hotel directly on its own brand website — the rate is usually within a dollar or two of what the aggregator quoted.
 

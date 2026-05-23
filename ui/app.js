@@ -166,6 +166,111 @@
   refreshQuota();
 
   // ----------------------------------------------------------------
+  // URL paste extraction — pull property name + dates + adults out of a
+  // pasted Expedia / Booking / Hotels.com / TripAdvisor / chain URL so the
+  // user can drop a link from any site and have it scored locally.
+  // Returns { name, city, checkIn, checkOut, adults } or null.
+  // ----------------------------------------------------------------
+  function extractHotelFromUrl(raw) {
+    let u;
+    try { u = new URL(String(raw).trim()); } catch (_) { return null; }
+    const host = u.hostname.replace(/^www\./, '').toLowerCase();
+    const path = u.pathname;
+    const params = u.searchParams;
+    let name = null, city = null, checkIn = null, checkOut = null, adults = null;
+    const titlecase = s => s.replace(/\b\w/g, c => c.toUpperCase());
+
+    if (host.endsWith('expedia.com') || host.endsWith('expedia.co.uk') || host.endsWith('expedia.ca')) {
+      const m = path.match(/\/([A-Za-z0-9_]+)-Hotels-([A-Za-z0-9_]+)\.h\d+/);
+      if (m) { city = m[1].replace(/_/g, ' '); name = m[2].replace(/_/g, ' '); }
+      checkIn = params.get('chkin');
+      checkOut = params.get('chkout');
+      const rm1 = params.get('rm1');
+      if (rm1) { const am = rm1.match(/a(\d+)/); if (am) adults = parseInt(am[1], 10); }
+    }
+    else if (host.endsWith('booking.com')) {
+      const m = path.match(/\/hotel\/[a-z]{2}\/([a-z0-9-]+)\.html?/i);
+      if (m) name = titlecase(m[1].replace(/-/g, ' '));
+      checkIn = params.get('checkin');
+      checkOut = params.get('checkout');
+      const ga = params.get('group_adults') || params.get('numberOfGuests');
+      if (ga) adults = parseInt(ga, 10) || null;
+    }
+    else if (host.endsWith('hotels.com')) {
+      const m = path.match(/\/ho\d+\/([a-z0-9-]+)\//i) || path.match(/\/([A-Za-z0-9_]+)-Hotels-([A-Za-z0-9_]+)\.h\d+/);
+      if (m && m[2]) { city = m[1].replace(/_/g, ' '); name = m[2].replace(/_/g, ' '); }
+      else if (m && m[1]) name = titlecase(m[1].replace(/-/g, ' '));
+      checkIn = params.get('chkin') || params.get('q-check-in');
+      checkOut = params.get('chkout') || params.get('q-check-out');
+    }
+    else if (host.endsWith('tripadvisor.com') || host.endsWith('tripadvisor.co.uk')) {
+      const m = path.match(/Hotel_Review[^/]*-Reviews-([A-Za-z0-9_]+?)-([A-Za-z0-9_]+?)\.html/);
+      if (m) {
+        name = m[1].replace(/_/g, ' ');
+        city = m[2].replace(/_/g, ' ').replace(/\s+(Lazio|Italy|France|Spain|Province|Region|State|Prefecture)$/i, '');
+      }
+    }
+    else if (host.endsWith('hyatt.com')) {
+      const seg = path.split('/').filter(Boolean);
+      const slug = seg[seg.length - 1];
+      if (slug && slug.includes('-')) name = titlecase(slug.replace(/-/g, ' '));
+    }
+    else if (host.endsWith('marriott.com')) {
+      const m = path.match(/\/hotels\/travel\/[a-z0-9]+-([a-z0-9-]+)\/?/i);
+      if (m) name = titlecase(m[1].replace(/-/g, ' '));
+    }
+    else if (host.endsWith('hilton.com')) {
+      const m = path.match(/\/en\/hotels\/([a-z0-9-]+)\/?/i);
+      if (m) name = titlecase(m[1].replace(/^[a-z]{3,4}-/, '').replace(/-/g, ' '));
+    }
+    else if (host.endsWith('ihg.com')) {
+      const m = path.match(/\/([a-z0-9]+)\/hotels\/[a-z]{2}\/[a-z]{2}\/[a-z-]+\/[a-z]+\/hoteldetail/i);
+      if (m) name = titlecase(m[1]);
+    }
+
+    if (!name) return null;
+    return {
+      name: name.trim(),
+      city: (city || '').trim() || null,
+      checkIn: (checkIn || '').match(/^\d{4}-\d{2}-\d{2}$/) ? checkIn : null,
+      checkOut: (checkOut || '').match(/^\d{4}-\d{2}-\d{2}$/) ? checkOut : null,
+      adults: (adults && adults >= 1 && adults <= 8) ? adults : null,
+    };
+  }
+  // exposed for the test harness — also useful from the browser console.
+  window.__hhExtractFromUrl = extractHotelFromUrl;
+
+  function applyExtractedToForm(ex) {
+    if (!ex) return false;
+    const qEl = $('#q'); if (qEl) qEl.value = ex.name;
+    if (ex.checkIn)  { const e = $('#check_in');  if (e) e.value = ex.checkIn; }
+    if (ex.checkOut) { const e = $('#check_out'); if (e) e.value = ex.checkOut; }
+    if (ex.adults)   { const e = $('#adults');    if (e) e.value = String(ex.adults); }
+    const hint = $('#search-status');
+    if (hint) {
+      const parts = [`Detected: ${ex.name}`];
+      if (ex.city) parts.push(`in ${ex.city}`);
+      if (ex.checkIn && ex.checkOut) parts.push(`${ex.checkIn} → ${ex.checkOut}`);
+      if (ex.adults) parts.push(`${ex.adults} adult${ex.adults === 1 ? '' : 's'}`);
+      hint.textContent = parts.join(' · ') + ' — click FIND HOTELS to look it up.';
+    }
+    return true;
+  }
+
+  // Wire up paste handler on the destination field.
+  (function wireUrlPaste() {
+    const qEl = $('#q'); if (!qEl) return;
+    qEl.addEventListener('paste', (e) => {
+      const txt = (e.clipboardData || window.clipboardData || {}).getData?.('text') || '';
+      if (!/^https?:\/\//i.test(txt.trim())) return;  // not a URL — let normal paste happen
+      const ex = extractHotelFromUrl(txt);
+      if (!ex) return;  // unrecognized site — let normal paste happen
+      e.preventDefault();
+      applyExtractedToForm(ex);
+    });
+  })();
+
+  // ----------------------------------------------------------------
   // Search
   // ----------------------------------------------------------------
   $('#search-form').addEventListener('submit', async (ev) => {
