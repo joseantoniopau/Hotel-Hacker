@@ -181,8 +181,12 @@
     const titlecase = s => s.replace(/\b\w/g, c => c.toUpperCase());
 
     if (host.endsWith('expedia.com') || host.endsWith('expedia.co.uk') || host.endsWith('expedia.ca')) {
-      const m = path.match(/\/([A-Za-z0-9_]+)-Hotels-([A-Za-z0-9_]+)\.h\d+/);
-      if (m) { city = m[1].replace(/_/g, ' '); name = m[2].replace(/_/g, ' '); }
+      // /Rome-Hotels-Ara-Suite.h19690220.Hotel-Information
+      // City and property names can contain dashes (e.g. Ara-Suite); anchor on
+      // the literal '-Hotels-' separator (non-greedy on both sides) and the
+      // trailing '.h{digits}'.
+      const m = path.match(/^\/(.+?)-Hotels-(.+?)\.h\d+/);
+      if (m) { city = m[1].replace(/[-_]/g, ' '); name = m[2].replace(/[-_]/g, ' '); }
       checkIn = params.get('chkin');
       checkOut = params.get('chkout');
       const rm1 = params.get('rm1');
@@ -197,9 +201,14 @@
       if (ga) adults = parseInt(ga, 10) || null;
     }
     else if (host.endsWith('hotels.com')) {
-      const m = path.match(/\/ho\d+\/([a-z0-9-]+)\//i) || path.match(/\/([A-Za-z0-9_]+)-Hotels-([A-Za-z0-9_]+)\.h\d+/);
-      if (m && m[2]) { city = m[1].replace(/_/g, ' '); name = m[2].replace(/_/g, ' '); }
-      else if (m && m[1]) name = titlecase(m[1].replace(/-/g, ' '));
+      // Hotels.com shares two URL shapes: /ho{id}/slug/ and the Expedia
+      // /City-Hotels-Property.h{id}.Hotel-Information form.
+      const m1 = path.match(/^\/(.+?)-Hotels-(.+?)\.h\d+/);
+      if (m1) { city = m1[1].replace(/[-_]/g, ' '); name = m1[2].replace(/[-_]/g, ' '); }
+      else {
+        const m2 = path.match(/\/ho\d+\/([a-z0-9-]+)\//i);
+        if (m2) name = titlecase(m2[1].replace(/-/g, ' '));
+      }
       checkIn = params.get('chkin') || params.get('q-check-in');
       checkOut = params.get('chkout') || params.get('q-check-out');
     }
